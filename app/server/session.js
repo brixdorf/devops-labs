@@ -314,7 +314,7 @@ export class SessionManager extends EventEmitter {
 
   async runSetup(session) {
     const id = session.containers.lab;
-    const dir = `/tmp/.lab-setup-${randomHex(8)}`;
+    const dir = `/var/tmp/.lab-setup-${randomHex(8)}`;
     await this.engine.exec(id, { cmd: ['install', '-d', '-m', '700', dir] });
     await this.engine.putFiles(id, dir, labSetupFiles(session.lab));
     const result = await this.engine.exec(id, {
@@ -400,7 +400,7 @@ export class SessionManager extends EventEmitter {
     const started = Date.now();
     try {
       const id = session.containers.lab;
-      const dir = `/tmp/.lab-check-${randomHex(8)}`;
+      const dir = `/var/tmp/.lab-check-${randomHex(8)}`;
       await this.engine.exec(id, { cmd: ['install', '-d', '-m', '700', dir] });
       const files = [
         { name: 'check.py', content: fs.readFileSync(path.join(session.lab.dir, 'check.py')), mode: 0o600 },
@@ -437,7 +437,7 @@ export class SessionManager extends EventEmitter {
     const session = this.requireRunning();
     this.touch();
     const id = session.containers.lab;
-    const dir = `/tmp/.lab-solve-${randomHex(8)}`;
+    const dir = `/var/tmp/.lab-solve-${randomHex(8)}`;
     await this.engine.exec(id, { cmd: ['install', '-d', '-m', '755', dir] });
     const files = [{ name: 'solve.sh', content: fs.readFileSync(path.join(session.lab.dir, 'solve.sh')), mode: 0o755 }];
     const assets = path.join(session.lab.dir, 'solution-files');
