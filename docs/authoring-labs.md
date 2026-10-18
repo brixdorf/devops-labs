@@ -74,7 +74,7 @@ c.run()
 - Give specific failure reasons: `Expected owner nobody:nogroup but found root:root`.
 - Accept every valid way of doing the task, unless the task requires a specific method.
 - An untouched lab must never pass. The self-test enforces this.
-- Helpers in `labs/_lib/labcheck.py`: `run`, `read`, `lines`, `owner`, `mode`, `http`, `http_json`, `kubectl`, `gitea_api`, `context`, `quote`.
+- Helpers in `labs/_lib/labcheck.py`: `run`, `read`, `lines`, `owner`, `mode`, `http`, `http_json`, `kubectl`, `k8s`, `in_cluster`, `wait_until`, `json_in`, `gitea_api`, `context`, `quote`. PyYAML (`import yaml`) is installed for parsing manifests and workflow files.
 
 ## Testing a lab
 
