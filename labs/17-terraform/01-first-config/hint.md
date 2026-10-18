@@ -1,0 +1,4 @@
+- `terraform { required_providers { local = { source = "hashicorp/local" } } }`
+- Resource blocks look like `resource "local_file" "greeting" { filename = ... content = ... }`.
+- In a string, `${random_pet.server.id}` inserts another resource's attribute, and `\n` is a newline.
+- The plan summary line reads "Plan: N to add, 0 to change, 0 to destroy".

@@ -1,0 +1,4 @@
+- In a plan, `-/+` means destroy and then create again (replace), `~` means update in place, and resources that do not change are not listed.
+- `local_file` cannot edit a file in place: changing `content` forces a replacement.
+- With local state, the file is `terraform.tfstate` in the working directory.
+- `git status --ignored` shows which files are ignored.

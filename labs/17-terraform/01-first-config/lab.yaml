@@ -1,0 +1,7 @@
+id: terraform-first-config
+title: Your First Terraform Configuration
+topic: terraform
+order: 1
+environment: terraform
+addons: []
+maxScore: 50

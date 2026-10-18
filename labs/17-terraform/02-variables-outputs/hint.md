@@ -1,0 +1,4 @@
+- `variable "environment" { type = string  description = "..." }`
+- A multi-line string can be written as a heredoc: `content = <<-EOT ... EOT`.
+- `terraform apply -var-file=staging.tfvars`
+- `output "app_name" { value = random_pet.app.id }`

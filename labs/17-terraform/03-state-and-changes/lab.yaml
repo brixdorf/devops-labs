@@ -1,0 +1,7 @@
+id: terraform-state-changes
+title: Plans, State and What Not to Commit
+topic: terraform
+order: 3
+environment: terraform
+addons: []
+maxScore: 50

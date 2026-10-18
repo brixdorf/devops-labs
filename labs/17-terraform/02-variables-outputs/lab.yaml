@@ -1,0 +1,7 @@
+id: terraform-variables-outputs
+title: Variables, tfvars Files and Outputs
+topic: terraform
+order: 2
+environment: terraform
+addons: []
+maxScore: 50
