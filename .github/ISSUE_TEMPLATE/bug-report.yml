@@ -1,0 +1,24 @@
+name: Bug report
+description: The app does not install, start or behave as expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What went wrong
+      description: The steps you took, what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: The output of `docker compose logs app`, if relevant.
+      render: text
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and Docker version
+      placeholder: macOS 26, Docker Desktop 4.x
+    validations:
+      required: true

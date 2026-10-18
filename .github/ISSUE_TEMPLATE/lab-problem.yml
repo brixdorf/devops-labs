@@ -1,0 +1,23 @@
+name: Lab problem
+description: A lab's question, checker or solution is wrong or unclear.
+labels: [lab]
+body:
+  - type: input
+    id: lab
+    attributes:
+      label: Lab
+      description: The topic and lab, for example "Docker, Q3", or the lab id from the address bar.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What went wrong
+      description: What you did, what you expected and what happened instead. Paste the failed test cases if a submission was involved.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and Docker version
+      placeholder: Windows 11, Docker Desktop 4.x

@@ -144,5 +144,6 @@ The first lab of each kind (Linux, Docker, Kubernetes, Terraform, Git server and
 - [Adding a lab](docs/authoring-labs.md)
 - [Maintainer guide: tests and version updates](docs/maintainers.md)
 - [Design decisions](docs/decisions.md)
+- [Contributing](CONTRIBUTING.md)
 
 DevOps Labs is released under the [MIT License](LICENSE). Icons are from [Lucide](https://lucide.dev) ([ISC License](docs/images/icons/LICENSE)). Fonts: Inter and JetBrains Mono (SIL Open Font License).
