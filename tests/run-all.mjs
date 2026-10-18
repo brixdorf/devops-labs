@@ -1,7 +1,9 @@
 // Runs the whole test suite in order and prints a summary:
-//   1. rules check          4. browser end-to-end tests
-//   2. unit and API tests   5. lab self-tests
-//   3. lab folder checks    6. install, stop and uninstall test
+//   1. rules check
+//   2. unit and API tests, lab folder checks and lab lint
+//   3. browser end-to-end tests
+//   4. lab self-tests
+//   5. install, stop and uninstall test
 //
 // Options: --skip <stage> (repeatable), --only <stage>, --labs <selftest args>
 // Stages: rules, unit, e2e, selftest, install
@@ -70,7 +72,11 @@ stage('rules', () => {
   const synced = run('node', [path.join(work, 'tools/sync-versions.mjs'), '--check'], { env: { ...process.env, DEVOPS_LABS_REPO: work } });
   return rules && synced;
 });
-stage('unit', () => run('npx', ['vitest', 'run'], { cwd: path.join(work, 'app') }));
+stage('unit', () => {
+  const unit = run('npx', ['vitest', 'run'], { cwd: path.join(work, 'app') });
+  const lint = run('node', [path.join(work, 'tests/lint-labs.mjs'), work]);
+  return unit && lint;
+});
 
 function platformUp() {
   if (!run('docker', ['compose', 'up', '-d', '--build', '--wait', '--wait-timeout', '300'], { cwd: work })) return false;
