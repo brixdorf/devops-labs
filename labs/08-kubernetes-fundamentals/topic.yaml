@@ -1,0 +1,4 @@
+id: kubernetes-fundamentals
+name: "Kubernetes Fundamentals"
+order: 8
+description: "Exploring a cluster, deploying a workload and the control plane components."

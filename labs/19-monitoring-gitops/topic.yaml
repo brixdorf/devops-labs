@@ -1,0 +1,4 @@
+id: monitoring-gitops
+name: "Monitoring, Observability and GitOps"
+order: 19
+description: "Prometheus metrics, Grafana dashboards and GitOps with Argo CD."

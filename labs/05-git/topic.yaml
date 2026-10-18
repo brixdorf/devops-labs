@@ -1,0 +1,4 @@
+id: git
+name: "Git and GitHub"
+order: 5
+description: "Branches, history, pushing to a remote, pull requests and merge conflicts."

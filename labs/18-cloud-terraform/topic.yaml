@@ -1,0 +1,4 @@
+id: cloud-terraform
+name: "Cloud with Terraform"
+order: 18
+description: "Cloud networks, compute and security groups on a local AWS stand-in."

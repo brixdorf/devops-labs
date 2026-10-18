@@ -1,0 +1,4 @@
+id: devsecops
+name: "DevSecOps"
+order: 16
+description: "Secure pipelines: secrets, security scanning and deployment gates."

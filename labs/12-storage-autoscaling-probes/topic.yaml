@@ -1,0 +1,4 @@
+id: storage-autoscaling-probes
+name: "Storage, Autoscaling and Probes"
+order: 12
+description: "Persistent volumes, health probes and the Horizontal Pod Autoscaler."

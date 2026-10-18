@@ -1,0 +1,4 @@
+id: ingress-configmaps-secrets
+name: "Ingress, ConfigMaps and Secrets"
+order: 11
+description: "Routing with Ingress and configuring apps with ConfigMaps and Secrets."

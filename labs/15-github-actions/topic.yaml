@@ -1,0 +1,4 @@
+id: github-actions
+name: "GitHub Actions"
+order: 15
+description: "Workflows that build, test and publish artifacts, using Gitea Actions."

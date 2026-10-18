@@ -1,0 +1,4 @@
+id: shell-scripting
+name: "Shell Scripting"
+order: 3
+description: "Writing bash scripts with arguments, checks, functions and loops."

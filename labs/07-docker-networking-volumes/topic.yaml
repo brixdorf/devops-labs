@@ -1,0 +1,4 @@
+id: docker-networking-volumes
+name: "Docker Networking and Volumes"
+order: 7
+description: "Custom networks, named volumes and multi-container apps with Compose."

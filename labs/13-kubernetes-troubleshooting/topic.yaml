@@ -1,0 +1,4 @@
+id: kubernetes-troubleshooting
+name: "Kubernetes Troubleshooting"
+order: 13
+description: "Diagnosing and fixing broken workloads and Services."

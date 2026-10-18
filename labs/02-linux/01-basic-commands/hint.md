@@ -1,0 +1,4 @@
+- `pwd` prints the current working directory.
+- `cd` changes directory and `ls` lists a directory.
+- Hidden files start with a dot. `ls` hides them unless you add a flag such as `-a`.
+- Use `>>` to append. A single `>` would overwrite the file.

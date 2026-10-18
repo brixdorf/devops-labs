@@ -1,0 +1,4 @@
+id: kubernetes-core-objects
+name: "Kubernetes Core Objects"
+order: 9
+description: "Pods, Deployments, scaling, rolling updates and rollbacks."

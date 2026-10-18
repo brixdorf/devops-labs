@@ -1,0 +1,4 @@
+id: kubernetes-services
+name: "Kubernetes Services"
+order: 10
+description: "ClusterIP and NodePort Services, selectors, ports and endpoints."

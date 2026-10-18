@@ -1,0 +1,4 @@
+id: networking
+name: "Networking"
+order: 4
+description: "Inspecting interfaces and routes, troubleshooting services, DNS and HTTP."

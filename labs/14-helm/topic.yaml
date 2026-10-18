@@ -1,0 +1,4 @@
+id: helm
+name: "Helm"
+order: 14
+description: "Writing charts, configurable values, upgrades and rollbacks."

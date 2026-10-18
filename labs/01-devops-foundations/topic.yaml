@@ -1,0 +1,4 @@
+id: devops-foundations
+name: "DevOps Foundations"
+order: 1
+description: "CI/CD stages, microservices trade-offs and a DevOps adoption roadmap, written as checkable answers."
