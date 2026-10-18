@@ -1,0 +1,20 @@
+id: networking-dns-http
+title: Resolve Names and Test HTTP and HTTPS
+topic: networking
+order: 3
+environment: base
+addons: []
+maxScore: 50
+services:
+  - name: web
+    files: services
+    command: python3 /srv/sites.py http
+    readyPort: 80
+  - name: secure
+    files: services
+    command: python3 /srv/sites.py https
+    readyPort: 443
+  - name: dns
+    files: services
+    command: bash /srv/dns.sh
+    readyPort: 53

@@ -1,0 +1,3 @@
+- `ip addr show` (short: `ip a`) lists interfaces with addresses like `172.18.0.3/16`. The number after the slash is the prefix length.
+- `ip route` shows the routing table. The line that starts with `default via` names the gateway.
+- `ss -tln` lists listening TCP sockets with numeric ports. Add `-p` (with `sudo`) to see which process owns each socket.

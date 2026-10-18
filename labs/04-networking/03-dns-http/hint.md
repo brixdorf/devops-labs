@@ -1,0 +1,3 @@
+- `dig +short shop.devops.lab` prints only the answer. `dig www.devops.lab` shows a `CNAME` line in the ANSWER section.
+- `nslookup` prints the server it asked on its first lines (`Server:`), and so does the `;; SERVER:` line of `dig`.
+- `curl -s -o /dev/null -w '%{http_code}\n' URL` prints only the status code. curl does not follow redirects unless you add `-L`.

@@ -1,0 +1,7 @@
+id: networking-inspect-host
+title: Inspect Addresses, Routes and Ports
+topic: networking
+order: 1
+environment: base
+addons: []
+maxScore: 50

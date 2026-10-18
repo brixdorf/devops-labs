@@ -1,0 +1,4 @@
+- No reply to `ping` points to a reachability problem.
+- If ping works but curl says "Connection refused", the port is closed.
+- If curl gets a response, look at the status code: 2xx is fine, 5xx is a server error.
+- `ss -tlnp` (with `sudo` for the process names) shows which process listens on which port.

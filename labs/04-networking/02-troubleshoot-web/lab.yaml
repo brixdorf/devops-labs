@@ -1,0 +1,20 @@
+id: networking-troubleshoot-web
+title: Troubleshoot Web Services with ping, ss and curl
+topic: networking
+order: 2
+environment: base
+addons: []
+maxScore: 50
+services:
+  - name: svc-ok
+    files: services
+    command: python3 /srv/web.py 8080 200
+    readyPort: 8080
+  - name: svc-error
+    files: services
+    command: python3 /srv/web.py 8080 503
+    readyPort: 8080
+  - name: svc-closed
+    files: services
+    command: python3 /srv/web.py 9999 200
+    readyPort: 9999
