@@ -173,7 +173,8 @@ export function serviceDefinitions(config) {
       recipe: 'moto',
       alias: 'moto',
       order: 1,
-      spec: () => ({}),
+      // The recorder lets checkers confirm which AWS calls a lab made.
+      spec: () => ({ Env: ['MOTO_ENABLE_RECORDING=True', 'MOTO_RECORDER_FILEPATH=/tmp/moto_recording'] }),
       ready: (s) => s.labTcp('moto', 5000),
     },
     prometheus: {

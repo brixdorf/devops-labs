@@ -1,0 +1,7 @@
+id: cloud-network-design
+title: Design a Cloud Network
+topic: cloud-terraform
+order: 1
+environment: terraform
+addons: []
+maxScore: 50

@@ -1,0 +1,9 @@
+id: cloud-provision-network
+title: Provision a Network and a Server, Then Destroy Them
+topic: cloud-terraform
+order: 2
+environment: terraform
+addons: [moto]
+maxScore: 50
+timeouts:
+  check: 120

@@ -1,0 +1,4 @@
+- `10.20.0.0/16` contains `10.20.1.0/24` and `10.20.2.0/24`.
+- "Public" means the subnet's route table has a route to the internet gateway.
+- A NAT gateway needs internet access itself, so it lives where that route exists.
+- Inbound traffic never passes through the NAT gateway; outbound traffic from the private subnet always does.

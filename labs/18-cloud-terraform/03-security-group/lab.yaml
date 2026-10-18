@@ -1,0 +1,7 @@
+id: cloud-security-group
+title: Open Only the Port You Need
+topic: cloud-terraform
+order: 3
+environment: terraform
+addons: [moto]
+maxScore: 50

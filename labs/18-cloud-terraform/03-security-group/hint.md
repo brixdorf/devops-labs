@@ -1,0 +1,3 @@
+- Rules can be written inline: `ingress { from_port = 443  to_port = 443  protocol = "tcp"  cidr_blocks = ["0.0.0.0/0"] }`.
+- Egress for all traffic uses `protocol = "-1"` with ports 0 to 0.
+- `terraform state show aws_security_group.web` lists every rule Terraform knows.

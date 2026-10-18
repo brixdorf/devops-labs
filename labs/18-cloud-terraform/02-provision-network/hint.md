@@ -1,0 +1,3 @@
+- `data "aws_ami" "al2023" { most_recent = true  owners = ["amazon"]  filter { name = "name"  values = ["al2023-ami-*-x86_64"] } }`
+- Reference attributes across resources, for example `vpc_id = aws_vpc.main.id`.
+- `default_tags` in the provider block tags every resource at once: `default_tags { tags = { Project = "devops-labs" } }`.
