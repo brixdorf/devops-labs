@@ -1,0 +1,31 @@
+# Maintainer tools. Run from the repository root:
+#   docker compose -f tests/compose.yaml run --build --rm tests     (full test suite)
+#   docker compose -f tests/compose.yaml run --build --rm update    (update every pinned version, then test)
+name: devops-labs-tests
+
+x-runner: &runner
+  image: devops-labs-tests:local
+  build:
+    context: ..
+    dockerfile: tests/Dockerfile
+    labels:
+      org.devopslabs.project: devops-labs
+  labels:
+    org.devopslabs.project: devops-labs
+    org.devopslabs.role: test-runner
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ..:/repo
+  working_dir: /repo
+  environment:
+    GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+  init: true
+
+services:
+  tests:
+    <<: *runner
+    command: ["node", "tests/run-all.mjs"]
+
+  update:
+    <<: *runner
+    command: ["node", "tools/update-versions.mjs"]
