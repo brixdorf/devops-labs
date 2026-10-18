@@ -1,0 +1,6 @@
+# Force LF line endings everywhere so scripts work when cloned on Windows.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.woff2 binary
+*.ico binary

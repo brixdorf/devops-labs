@@ -1,0 +1,71 @@
+{
+  "_comment": "Central list of every pinned version. Edit with the update command (see docs/maintainers.md), then run the sync step.",
+  "images": {
+    "node": "24.22.0-trixie-slim",
+    "ubuntu": "resolute-20261006",
+    "k3s": "v1.37.1-k3s1",
+    "gitea": "28.1.0",
+    "act_runner": "0.6.1",
+    "registry": "3.1.2",
+    "moto": "5.2.4",
+    "prometheus": "v3.15.0",
+    "grafana": "13.2.4",
+    "playwright": "v1.64.1-noble",
+    "nginx": "1.30.6-alpine",
+    "httpd": "2.4.69-alpine",
+    "postgres": "18.6-alpine",
+    "python": "3.15.0-slim",
+    "busybox": "1.38.0",
+    "alpine": "3.24.2",
+    "redis": "8.10.2-alpine"
+  },
+  "tools": {
+    "docker_ce": "29.9.1",
+    "containerd": "2.4.2",
+    "compose_plugin": "5.6.0",
+    "buildx_plugin": "0.38.0",
+    "kubectl": "v1.37.1",
+    "helm": "v4.3.1",
+    "terraform": "1.16.6",
+    "argocd": "v3.5.5",
+    "trivy": "0.76.0",
+    "gitleaks": "8.30.1"
+  },
+  "terraform_providers": {
+    "hashicorp/aws": "6.69.1",
+    "hashicorp/local": "2.9.1",
+    "hashicorp/random": "3.9.1",
+    "hashicorp/null": "3.3.2"
+  },
+  "actions": {
+    "actions/checkout": "v7.0.1",
+    "actions/upload-artifact": "v7.0.2",
+    "actions/download-artifact": "v8.0.2"
+  },
+  "pip": {
+    "bandit": "1.9.4",
+    "flask": "3.1.3",
+    "prometheus-client": "0.26.0",
+    "pyyaml": "6.0.3",
+    "pytest": "9.1.1"
+  },
+  "npm": {
+    "express": "5.3.0",
+    "ws": "8.22.0",
+    "dockerode": "5.0.1",
+    "tar-stream": "3.2.2",
+    "yaml": "2.9.1",
+    "marked": "18.1.1",
+    "@xterm/xterm": "6.0.0",
+    "@xterm/addon-fit": "0.11.0",
+    "@xterm/addon-web-links": "0.12.0",
+    "@xterm/addon-unicode11": "0.9.0",
+    "lucide": "1.59.0",
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "vite": "8.3.4",
+    "vitest": "5.0.5",
+    "supertest": "7.3.1",
+    "@playwright/test": "1.64.1"
+  }
+}

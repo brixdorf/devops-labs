@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+test-results/
+playwright-report/
+*.log
+.terraform/
+*.tfstate
+*.tfstate.backup
+__pycache__/
