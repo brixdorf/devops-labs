@@ -208,3 +208,52 @@ class Checker:
             results.append(entry)
         sys.stdout.write(MARKER + json.dumps({"tests": results}) + "\n")
         sys.stdout.flush()
+
+
+def k8s(args, timeout=60):
+    """Runs kubectl with -o json and returns the parsed object, or None."""
+    argv = shlex.split(args) if isinstance(args, str) else list(args)
+    r = run(["kubectl", *argv, "-o", "json"], timeout=timeout)
+    if not r.ok:
+        return None
+    try:
+        return json.loads(r.out)
+    except ValueError:
+        return None
+
+
+def wait_until(fn, timeout=60, interval=2):
+    """Calls fn until it returns a truthy value or the timeout passes."""
+    import time
+
+    deadline = time.time() + timeout
+    while True:
+        value = fn()
+        if value or time.time() >= deadline:
+            return value
+        time.sleep(interval)
+
+
+def in_cluster(command, image=None, timeout=60):
+    """Runs a shell command in a short-lived busybox pod and returns its output."""
+    import random
+
+    image = image or os.environ.get("IMAGE_BUSYBOX", "busybox")
+    name = f"labcheck-{random.randint(10000, 99999)}"
+    r = run(["kubectl", "run", name, "--rm", "-i", "--restart=Never", "--quiet", f"--image={image}",
+             "--pod-running-timeout=90s", "--", "sh", "-c", command], timeout=timeout + 90)
+    return r
+
+
+def json_in(text):
+    """Returns the first JSON object found in text, or {}."""
+    start = text.find("{")
+    while start != -1:
+        try:
+            obj, _ = json.JSONDecoder().raw_decode(text[start:])
+            if isinstance(obj, dict):
+                return obj
+        except ValueError:
+            pass
+        start = text.find("{", start + 1)
+    return {}
