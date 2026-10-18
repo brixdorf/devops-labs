@@ -11,7 +11,7 @@ RUN rm -f /etc/dpkg/dpkg.cfg.d/excludes \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
       bash-completion bind9-dnsutils ca-certificates coreutils curl file git gnupg iproute2 iputils-ping \
-      jq less lsof man-db manpages nano net-tools netcat-openbsd procps psmisc python3 python3-venv \
+      jq less lsof man-db manpages nano net-tools netcat-openbsd procps psmisc python3 python3-venv python3-yaml \
       socat sudo tree tzdata unzip vim wget xz-utils zip \
  && apt-get install -y --no-install-recommends --allow-remove-essential coreutils-from-gnu coreutils-from-uutils- \
  && apt-get install -y --reinstall --no-install-recommends bash findutils gnu-coreutils grep gzip sed tar util-linux \
