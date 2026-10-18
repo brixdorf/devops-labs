@@ -1,0 +1,3 @@
+- Each practice depends on the ones before it: you cannot run automated tests in a pipeline without the code in version control, and you cannot deploy a container you have not built.
+- Monitoring comes last in the list, but it is what tells you the earlier steps work in production.
+- A good reason explains the problem the practice solves for this team, in their words.

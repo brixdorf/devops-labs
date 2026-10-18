@@ -1,0 +1,7 @@
+id: devops-cicd-workflow
+title: Map a CI/CD Workflow
+topic: devops-foundations
+order: 1
+environment: base
+addons: []
+maxScore: 50

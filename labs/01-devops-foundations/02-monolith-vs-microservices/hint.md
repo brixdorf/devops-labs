@@ -1,0 +1,3 @@
+- "Operational" means about running the system: deploying, scaling, failures, monitoring.
+- A benefit of microservices usually comes from services being independent. A challenge usually comes from the network between them and from having many moving parts.
+- Be careful with absolute words such as "always" or "never": they often mark a false statement.

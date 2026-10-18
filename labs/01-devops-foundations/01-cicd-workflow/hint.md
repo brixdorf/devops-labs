@@ -1,0 +1,3 @@
+- A workflow starts when a developer saves work to version control, and ends with watching the running system.
+- You cannot test what has not been built, and you package (for example as a container image) only what passed the tests.
+- Read each activity and ask: "is this producing something, checking something, shipping something or watching something?"
