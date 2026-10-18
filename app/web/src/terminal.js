@@ -66,7 +66,6 @@ class TerminalTab {
     this.installClipboard();
     term.onData((data) => this.send({ type: 'input', data }));
     term.onResize(({ cols, rows }) => this.send({ type: 'resize', cols, rows }));
-    this.connect();
   }
 
   installClipboard() {
@@ -190,6 +189,11 @@ export class TerminalTabs {
     const tab = new TerminalTab(this, this.nextId++);
     this.tabs.push(tab);
     this.container.append(tab.el);
+    // Show and size the pane before connecting, so the shell starts with
+    // the real terminal size.
+    for (const t of this.tabs) t.el.classList.toggle('active', t === tab);
+    tab.fitNow();
+    tab.connect();
     this.select(tab.id);
   }
 

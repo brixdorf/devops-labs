@@ -197,18 +197,14 @@ async function handleTerminal(ws, url, manager) {
   }
   const cols = clamp(url.searchParams.get('cols'), 20, 500, 80);
   const rows = clamp(url.searchParams.get('rows'), 5, 200, 24);
-  let term;
-  try {
-    term = await manager.openTerminal(tab, { cols, rows });
-  } catch (err) {
-    send({ type: 'error', message: err.message });
-    ws.close();
-    return;
-  }
-  term.onData((data) => send({ type: 'output', data }));
-  term.onClose = (reason) => {
-    send({ type: 'exit', reason });
-    ws.close();
+  // Listen right away: messages that arrive while the shell starts are
+  // queued and applied once it is ready.
+  let term = null;
+  let closed = false;
+  const queue = [];
+  const apply = (msg) => {
+    if (msg.type === 'input' && typeof msg.data === 'string') term.write(msg.data);
+    else if (msg.type === 'resize') term.resize(clamp(msg.cols, 20, 500, 80), clamp(msg.rows, 5, 200, 24));
   };
   ws.on('message', (raw) => {
     let msg;
@@ -217,10 +213,30 @@ async function handleTerminal(ws, url, manager) {
     } catch {
       return;
     }
-    if (msg.type === 'input' && typeof msg.data === 'string') term.write(msg.data);
-    else if (msg.type === 'resize') term.resize(clamp(msg.cols, 20, 500, 80), clamp(msg.rows, 5, 200, 24));
+    if (term) apply(msg);
+    else queue.push(msg);
   });
-  ws.on('close', () => term.close('disconnected'));
+  ws.on('close', () => {
+    closed = true;
+    term?.close('disconnected');
+  });
+  try {
+    term = await manager.openTerminal(tab, { cols, rows });
+  } catch (err) {
+    send({ type: 'error', message: err.message });
+    ws.close();
+    return;
+  }
+  if (closed) {
+    term.close('disconnected');
+    return;
+  }
+  term.onData((data) => send({ type: 'output', data }));
+  term.onClose = (reason) => {
+    send({ type: 'exit', reason });
+    ws.close();
+  };
+  for (const msg of queue.splice(0)) apply(msg);
 }
 
 function clamp(value, min, max, fallback) {

@@ -464,11 +464,12 @@ function renderStage() {
   const mine = sessionForCurrent();
   const running = mine?.state === 'running';
 
+  // Show the terminal area before attaching, so new terminals can measure it.
+  els.termContainer.hidden = !running;
+  els.termTabs.hidden = !running;
   if (s?.state === 'running') els.terminals.attach(s);
   else els.terminals.detach();
 
-  els.termContainer.hidden = !running;
-  els.termTabs.hidden = !running;
   els.stopButton.hidden = !(mine && ['running', 'launching'].includes(mine.state));
   els.countdown.hidden = !running;
   els.labCard.classList.toggle('is-running', running);

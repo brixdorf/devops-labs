@@ -498,6 +498,8 @@ export class SessionManager extends EventEmitter {
     });
     session.terminals.set(tabId, term);
     await resize(cols, rows);
+    // A resize that arrives before the shell has started can be lost.
+    setTimeout(() => !term.closed && resize(cols, rows), 400).unref?.();
     return term;
   }
 
