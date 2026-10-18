@@ -1,0 +1,5 @@
+- `mkdir -p` creates several directories at once, for example `mkdir -p project/{app,logs,config}`.
+- `cp` copies and `mv` moves.
+- `find /home/user/incoming -name '*.log'` lists log files in all subdirectories. Add `-exec mv {} /home/user/project/logs/ \;` to move them.
+- `grep -rl 'disk full' DIR` prints the names of files that contain the text. `basename` strips the directory part.
+- `find ... -name '*.tmp' -delete` deletes matching files.

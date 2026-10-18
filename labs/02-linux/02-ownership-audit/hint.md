@@ -1,0 +1,3 @@
+- `chown` changes ownership. The form `chown user:group file` sets both the owner and the group.
+- Only root can give files away to another user, so prefix the command with `sudo`.
+- `ls -l` shows the owner and group of each file.

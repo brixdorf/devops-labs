@@ -1,0 +1,4 @@
+- `systemctl status inventory` shows whether the service runs and the last few log lines.
+- `journalctl -u inventory` shows the full log of one unit. Add `-e` to jump to the end or `-n 30` for the last 30 lines.
+- Read the line that starts with `ERROR`: it names a file, a directory or a port.
+- `systemctl list-units --type=service` lists other services that might be in the way.

@@ -1,0 +1,3 @@
+- `mkdir` creates a directory and `cd` enters it.
+- `touch` creates an empty file, and it accepts several names at once.
+- `ls -l` is the long listing format.

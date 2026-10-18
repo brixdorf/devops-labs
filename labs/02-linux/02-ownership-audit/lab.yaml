@@ -1,0 +1,7 @@
+id: linux-ownership-audit
+title: Ownership and Permission Audit for Sensitive Files
+topic: linux
+order: 2
+environment: base
+addons: []
+maxScore: 50

@@ -1,0 +1,4 @@
+- `groupadd` creates groups, `useradd` creates users (`-m` makes the home directory, `-s` sets the shell).
+- `usermod -aG GROUP USER` appends a supplementary group. Without `-a` it replaces the user's groups.
+- `chown user:group DIR` and `chmod 2770 DIR`.
+- Check your work with `id examuser` and `ls -ld /srv/devops-project`.
