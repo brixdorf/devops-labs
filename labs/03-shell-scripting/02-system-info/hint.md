@@ -1,0 +1,3 @@
+- `touch` creates an empty file and `chmod +x` makes it executable.
+- The bash shebang is `#!/bin/bash` (or `#!/usr/bin/env bash`).
+- Comment lines start with `#`. Put the three fields right after the shebang.

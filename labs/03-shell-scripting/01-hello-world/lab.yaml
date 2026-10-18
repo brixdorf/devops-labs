@@ -1,0 +1,7 @@
+id: shell-hello-world
+title: Hello, World!
+topic: shell-scripting
+order: 1
+environment: base
+addons: []
+maxScore: 50

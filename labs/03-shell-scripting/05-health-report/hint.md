@@ -1,0 +1,4 @@
+- `free | awk '/^Mem:/ {print int(($2 - $7) * 100 / $2)}'` prints the memory percentage (column 7 is "available").
+- `df --output=pcent / | tail -n 1 | tr -dc '0-9'` prints the disk use of `/` as a bare number.
+- `[[ $1 =~ ^[0-9]+$ ]]` checks that a value is a whole number.
+- Keep a variable such as `STATUS=OK` and change it to `WARNING` inside your checks.

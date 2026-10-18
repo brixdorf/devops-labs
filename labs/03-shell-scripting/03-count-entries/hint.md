@@ -1,0 +1,4 @@
+- `$#` is the number of arguments and `$1` is the first one.
+- `[ -d "$1" ]` tests for a directory. Always quote `"$1"` so paths with spaces work.
+- `find "$dir" -mindepth 1 -maxdepth 1 -type f | wc -l` counts regular files directly inside `dir`, hidden ones included. Use `-type d` for directories.
+- `echo "message" >&2` prints to standard error, and `exit 1` sets the exit status.

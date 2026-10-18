@@ -1,0 +1,7 @@
+id: shell-file-check
+title: Check a File's Permissions
+topic: shell-scripting
+order: 4
+environment: base
+addons: []
+maxScore: 50

@@ -1,0 +1,7 @@
+id: shell-health-report
+title: Reusable System Health Script
+topic: shell-scripting
+order: 5
+environment: base
+addons: []
+maxScore: 50

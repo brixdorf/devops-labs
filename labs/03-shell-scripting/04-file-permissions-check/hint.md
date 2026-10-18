@@ -1,0 +1,3 @@
+- Bash has test operators for each check: `-e` exists, `-r` readable, `-w` writable, `-x` executable.
+- A small function such as `yesno() { if "$@"; then echo yes; else echo no; fi; }` avoids repeating `if` blocks.
+- Always quote `"$1"` so paths with spaces work.

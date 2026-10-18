@@ -1,0 +1,2 @@
+- A shebang is the first line of a script and starts with `#!`, for example `#!/bin/bash`.
+- `echo` prints text. Quote the text so the shell does not treat `!` specially.

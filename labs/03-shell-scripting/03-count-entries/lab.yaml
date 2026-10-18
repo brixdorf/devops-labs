@@ -1,0 +1,7 @@
+id: shell-count-entries
+title: Count Files and Directories
+topic: shell-scripting
+order: 3
+environment: base
+addons: []
+maxScore: 50

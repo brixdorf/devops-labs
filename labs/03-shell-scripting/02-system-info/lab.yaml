@@ -1,0 +1,7 @@
+id: shell-system-info
+title: Your First Documented Script
+topic: shell-scripting
+order: 2
+environment: base
+addons: []
+maxScore: 50
