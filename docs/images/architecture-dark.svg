@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="400" viewBox="0 0 900 400">
+  <title>How DevOps Labs works</title>
+  <defs><marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8b949e"/></marker></defs>
+  
+  <rect x="20" y="150" width="170" height="80" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="105" y="186" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" font-weight="650" fill="#e6edf3">Browser</text>
+  <text x="105" y="208" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" fill="#9ba7b4">localhost:8800</text>
+  
+  <line x1="190" y1="190" x2="280" y2="190" stroke="#8b949e" stroke-width="2" marker-end="url(#ad)"/>
+  <text x="235" y="182" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#9ba7b4">HTTP + WebSocket</text>
+  
+  <rect x="280" y="140" width="200" height="100" rx="12" fill="#161b22" stroke="#58a6ff" stroke-width="1.5"/>
+  <text x="380" y="186" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" font-weight="650" fill="#e6edf3">DevOps Labs app</text>
+  <text x="380" y="208" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" fill="#9ba7b4">UI, API, terminals, checkers</text>
+  
+  <line x1="480" y1="175" x2="580" y2="110" stroke="#8b949e" stroke-width="2" marker-end="url(#ad)"/>
+  <text x="530" y="134.5" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#9ba7b4">Docker API</text>
+  
+  <line x1="480" y1="205" x2="580" y2="285" stroke="#8b949e" stroke-width="2" marker-end="url(#ad)"/>
+  <text x="530" y="237" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#9ba7b4">starts on demand</text>
+  
+  <rect x="580" y="60" width="300" height="90" rx="12" fill="#0f2a1c" stroke="#2ea043" stroke-width="1.5"/>
+  <text x="730" y="101" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" font-weight="650" fill="#e6edf3">Lab container</text>
+  <text x="730" y="123" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" fill="#9ba7b4">Ubuntu, your terminal, tools</text>
+  <rect x="580" y="215" width="300" height="170" rx="12" fill="#1c1f2a" stroke="#30363d" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="730" y="240" text-anchor="middle" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="650" fill="#e6edf3">Add-on services (only when a lab needs them)</text>
+  <text x="600" y="270" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#9ba7b4">Gitea + Actions runner</text><text x="600" y="293" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#9ba7b4">Container registry</text><text x="600" y="316" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#9ba7b4">Moto (AWS)</text><text x="600" y="339" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#9ba7b4">Prometheus + Grafana</text><text x="600" y="362" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#9ba7b4">k3s cluster + Argo CD</text>
+  <line x1="730" y1="150" x2="730" y2="215" stroke="#8b949e" stroke-width="2" stroke-dasharray="4 4"/>
+  <text x="742" y="188" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#9ba7b4">private lab network</text>
+  <text x="20" y="30" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" fill="#9ba7b4">Everything runs in Docker on your own machine.</text>
+</svg>
