@@ -1,0 +1,40 @@
+name: devops-labs
+
+x-app-image: &app-image
+  image: devops-labs-app:local
+  build:
+    context: .
+    labels:
+      org.devopslabs.project: devops-labs
+  labels:
+    org.devopslabs.project: devops-labs
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+services:
+  app:
+    <<: *app-image
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 90s
+    ports:
+      - "127.0.0.1:${DEVOPS_LABS_PORT:-8800}:8800"
+    environment:
+      DEVOPS_LABS_PORT: ${DEVOPS_LABS_PORT:-8800}
+      DEVOPS_LABS_GITEA_PORT: ${DEVOPS_LABS_GITEA_PORT:-8801}
+      DEVOPS_LABS_GRAFANA_PORT: ${DEVOPS_LABS_GRAFANA_PORT:-8802}
+      DEVOPS_LABS_PROMETHEUS_PORT: ${DEVOPS_LABS_PROMETHEUS_PORT:-8803}
+      DEVOPS_LABS_ARGOCD_PORT: ${DEVOPS_LABS_ARGOCD_PORT:-8804}
+      DEVOPS_LABS_IDLE_MINUTES: ${DEVOPS_LABS_IDLE_MINUTES:-15}
+
+  # Removes everything the project created. Run with: docker compose run --rm uninstall
+  uninstall:
+    <<: *app-image
+    profiles: ["uninstall"]
+    init: true
+    command: ["node", "server/uninstall.js"]
+
+networks:
+  default:
+    labels:
+      org.devopslabs.project: devops-labs
