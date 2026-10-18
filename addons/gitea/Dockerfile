@@ -6,13 +6,18 @@ FROM ${GITEA_IMAGE}
 ARG CHECKOUT_VERSION
 ARG UPLOAD_ARTIFACT_VERSION
 ARG DOWNLOAD_ARTIFACT_VERSION
+# Each action becomes a one-commit repository (Gitea refuses shallow pushes),
+# tagged with its exact version and its major version.
 RUN set -e; mkdir -p /opt/devops-labs/actions; cd /opt/devops-labs/actions; \
     for spec in "checkout ${CHECKOUT_VERSION}" "upload-artifact ${UPLOAD_ARTIFACT_VERSION}" "download-artifact ${DOWNLOAD_ARTIFACT_VERSION}"; do \
       set -- $spec; \
-      git clone -q --bare --depth 1 --branch "$2" "https://github.com/actions/$1.git" "$1.git"; \
-      major="${2%%.*}"; \
-      git -C "$1.git" tag "$major" "$2^{commit}"; \
-      git -C "$1.git" branch -f main "$2^{commit}"; \
+      git clone -q --depth 1 --branch "$2" "https://github.com/actions/$1.git" "$1"; \
+      rm -rf "$1/.git"; \
+      git -C "$1" init -q -b main; \
+      git -C "$1" add -A; \
+      git -C "$1" -c user.name=devops-labs -c user.email=devops-labs@localhost commit -q -m "actions/$1 $2"; \
+      git -C "$1" tag "$2"; \
+      git -C "$1" tag "${2%%.*}"; \
     done
 COPY devops-labs-gitea-init /usr/local/bin/devops-labs-gitea-init
 RUN chmod 0755 /usr/local/bin/devops-labs-gitea-init

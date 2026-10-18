@@ -13,8 +13,9 @@ su-exec git gitea --config "$CONF" admin user create --admin --username "$USER_N
 
 curl -sf -H "$AUTH" -H 'Content-Type: application/json' -X POST "$API/orgs" \
   -d '{"username":"actions","visibility":"public"}' >/dev/null || true
-for repo in /opt/devops-labs/actions/*.git; do
-  name=$(basename "$repo" .git)
+for repo in /opt/devops-labs/actions/*/; do
+  repo=${repo%/}
+  name=$(basename "$repo")
   curl -sf -H "$AUTH" -H 'Content-Type: application/json' -X POST "$API/orgs/actions/repos" \
     -d "{\"name\":\"$name\",\"private\":false}" >/dev/null || true
   git -C "$repo" -c "http.extraHeader=$AUTH" push -q "http://localhost:3000/actions/$name.git" 'refs/heads/main:refs/heads/main' 'refs/tags/*:refs/tags/*'
