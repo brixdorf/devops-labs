@@ -40,12 +40,25 @@ export function loadConfig(env = process.env) {
   };
 }
 
-// Pinned lab images, exposed to lab text as {{IMAGE_NGINX}} and to lab
-// scripts as $IMAGE_NGINX, so labs never hard-code a version.
-const LAB_IMAGES = { nginx: 'nginx', httpd: 'httpd', postgres: 'postgres', python: 'python', busybox: 'busybox', alpine: 'alpine', redis: 'redis' };
+// Pinned lab images and packages, exposed to lab text as {{IMAGE_NGINX}} and
+// to lab scripts as $IMAGE_NGINX, so labs never hard-code a version.
+const LAB_IMAGES = {
+  nginx: 'nginx',
+  httpd: 'httpd',
+  postgres: 'postgres',
+  python: 'python',
+  busybox: 'busybox',
+  alpine: 'alpine',
+  redis: 'redis',
+  podinfo: 'stefanprodan/podinfo',
+  podinfo_previous: 'stefanprodan/podinfo',
+};
 
 export function labImageVars(versions) {
   const vars = {};
   for (const [key, repo] of Object.entries(LAB_IMAGES)) vars[`IMAGE_${key.toUpperCase()}`] = `${repo}:${versions.images[key]}`;
+  // Python packages available offline to workflows, as requirement lines.
+  for (const [name, version] of Object.entries(versions.pip)) vars[`PIP_${name.toUpperCase().replace(/-/g, '_')}`] = `${name}==${version}`;
+  vars.PIP_DJANGO_VULNERABLE = `django==${versions.lab_fixed.django_vulnerable}`;
   return vars;
 }

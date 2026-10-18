@@ -8,7 +8,9 @@ const root = process.argv[2] || process.cwd();
 const labsDir = path.join(root, 'labs');
 const KNOWN = new Set(['GITEA_URL', 'GITEA_USER', 'GITEA_PASSWORD', 'GRAFANA_URL', 'GRAFANA_USER', 'GRAFANA_PASSWORD', 'PROMETHEUS_URL', 'ARGOCD_URL', 'ARGOCD_USER', 'ARGOCD_PASSWORD', 'REGISTRY_USER', 'REGISTRY_PASSWORD', 'SUDO_PASSWORD']);
 const versions = JSON.parse(fs.readFileSync(path.join(root, 'versions.json'), 'utf8'));
-for (const key of ['nginx', 'httpd', 'postgres', 'python', 'busybox', 'alpine', 'redis']) KNOWN.add(`IMAGE_${key.toUpperCase()}`);
+for (const key of ['nginx', 'httpd', 'postgres', 'python', 'busybox', 'alpine', 'redis', 'podinfo', 'podinfo_previous']) KNOWN.add(`IMAGE_${key.toUpperCase()}`);
+for (const key of Object.keys(versions.pip)) KNOWN.add(`PIP_${key.toUpperCase().replace(/-/g, '_')}`);
+KNOWN.add('PIP_DJANGO_VULNERABLE');
 
 const problems = [];
 const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));

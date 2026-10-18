@@ -139,6 +139,13 @@ add('images', 'nginx', () => hubSemver('library/nginx', img.nginx, { filter: (v)
 for (const key of ['httpd', 'postgres', 'python', 'busybox', 'alpine', 'redis']) {
   add('images', key, () => hubSemver(`library/${key}`, img[key], { filter: stable }));
 }
+add('images', 'podinfo', () => hubSemver('stefanprodan/podinfo', img.podinfo));
+// The rolling update lab needs an older release: the newest one of the previous minor line.
+add('images', 'podinfo_previous', async () => {
+  const latest = await hubSemver('stefanprodan/podinfo', img.podinfo);
+  const [major, minor] = latest.split('.').map(Number);
+  return hubSemver('stefanprodan/podinfo', img.podinfo_previous, { filter: (v) => Number(v.split('.')[0]) === major && Number(v.split('.')[1]) === minor - 1 });
+});
 
 add('tools', 'kubectl', async () => `v${(await github('k3s-io/k3s')).replace(/^v/, '').split('+')[0]}`);
 add('tools', 'helm', () => github('helm/helm'));
