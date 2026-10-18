@@ -1,0 +1,3 @@
+- `kubectl get pods` shows the status; `kubectl describe pod <name>` ends with the Events section, which contains the pull error.
+- Look closely at the image name in the Deployment: `kubectl get deployment catalog -o jsonpath='{..image}'`.
+- `kubectl set image deployment/catalog <container>=<image>` changes the image in place.

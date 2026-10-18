@@ -1,0 +1,7 @@
+id: helm-configurable-values
+title: Deploy a Chart with Your Own Values
+topic: helm
+order: 2
+environment: kubernetes
+addons: []
+maxScore: 50

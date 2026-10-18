@@ -1,0 +1,3 @@
+- `kubectl get pods --show-labels` shows the labels; `kubectl describe service frontend-svc` shows the selector and the endpoints.
+- `kubectl get endpointslices -l kubernetes.io/service-name=frontend-svc` lists endpoint addresses.
+- `kubectl edit service frontend-svc` or `kubectl patch service frontend-svc -p '{"spec":{"selector":{...}}}'` changes the selector.

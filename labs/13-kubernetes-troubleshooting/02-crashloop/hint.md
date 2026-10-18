@@ -1,0 +1,3 @@
+- `kubectl get pods` shows the status and RESTARTS; `kubectl describe pod` shows "Last State: Terminated" with the exit code.
+- The log line names an environment variable. `kubectl describe configmap order-worker-config` shows which keys exist.
+- `kubectl set env deployment/order-worker --from=configmap/order-worker-config` adds every key as an environment variable, taken from the ConfigMap.

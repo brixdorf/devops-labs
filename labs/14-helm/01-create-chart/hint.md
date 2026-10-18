@@ -1,0 +1,4 @@
+- `cd /home/user/charts && helm create webapp` generates a complete starter chart.
+- In `values.yaml`, `image:` already has `repository:` and `tag:` keys.
+- `helm lint ./webapp` and `helm template webapp ./webapp > webapp-rendered.yaml`
+- Chart.yaml describes the chart itself, values.yaml holds settings, and templates/ holds the manifests that use those settings.

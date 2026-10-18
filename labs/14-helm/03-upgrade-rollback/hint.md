@@ -1,0 +1,3 @@
+- `helm status catalog -n catalog`, `helm get values catalog -n catalog`, `helm history catalog -n catalog`
+- `helm upgrade catalog ./catalog -n catalog --reuse-values --set image.tag=... --set replicaCount=2 --wait`
+- `helm rollback catalog 1 -n catalog --wait`

@@ -1,0 +1,7 @@
+id: helm-create-chart
+title: Create a Helm Chart
+topic: helm
+order: 1
+environment: kubernetes
+addons: []
+maxScore: 50

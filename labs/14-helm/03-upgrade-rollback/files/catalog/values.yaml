@@ -1,0 +1,9 @@
+replicaCount: 1
+
+image:
+  repository: stefanprodan/podinfo
+  tag: "0.0.0"
+
+service:
+  type: ClusterIP
+  port: 80

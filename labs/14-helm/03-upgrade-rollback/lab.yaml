@@ -1,0 +1,7 @@
+id: helm-upgrade-rollback
+title: Upgrade and Roll Back a Helm Release
+topic: helm
+order: 3
+environment: kubernetes
+addons: []
+maxScore: 50

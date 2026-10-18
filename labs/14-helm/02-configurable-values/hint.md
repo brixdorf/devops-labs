@@ -1,0 +1,4 @@
+- A values file uses the same structure as the chart's `values.yaml`, but only needs the keys you change.
+- `helm template shop ./shop -f prod-values.yaml`
+- `helm install shop ./shop -f prod-values.yaml -n shop --create-namespace`
+- `kubectl get deploy,svc -n shop`
