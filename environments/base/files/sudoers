@@ -1,0 +1,2 @@
+Defaults lecture=never
+Defaults env_keep += "KUBECONFIG"

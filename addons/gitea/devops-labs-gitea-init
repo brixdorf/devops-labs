@@ -1,0 +1,23 @@
+#!/bin/sh
+# Creates the student account, publishes the bundled actions and prints a
+# runner registration token on the last line of output.
+set -e
+CONF=/data/gitea/conf/app.ini
+USER_NAME="${GITEA_STUDENT_USER:-student}"
+PASSWORD="${GITEA_STUDENT_PASSWORD:-student@123!}"
+API=http://localhost:3000/api/v1
+AUTH="Authorization: Basic $(printf '%s' "$USER_NAME:$PASSWORD" | base64 | tr -d '\n')"
+
+su-exec git gitea --config "$CONF" admin user create --admin --username "$USER_NAME" --password "$PASSWORD" \
+  --email "$USER_NAME@devops-labs.local" --must-change-password=false >/dev/null 2>&1 || true
+
+curl -sf -H "$AUTH" -H 'Content-Type: application/json' -X POST "$API/orgs" \
+  -d '{"username":"actions","visibility":"public"}' >/dev/null || true
+for repo in /opt/devops-labs/actions/*.git; do
+  name=$(basename "$repo" .git)
+  curl -sf -H "$AUTH" -H 'Content-Type: application/json' -X POST "$API/orgs/actions/repos" \
+    -d "{\"name\":\"$name\",\"private\":false}" >/dev/null || true
+  git -C "$repo" -c "http.extraHeader=$AUTH" push -q "http://localhost:3000/actions/$name.git" 'refs/heads/main:refs/heads/main' 'refs/tags/*:refs/tags/*'
+done
+
+su-exec git gitea --config "$CONF" actions generate-runner-token

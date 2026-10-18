@@ -1,0 +1,10 @@
+#!/bin/bash
+# Makes add-on web interfaces reachable at the same localhost URL inside the
+# lab as in the browser. Each line of /etc/devops-labs/forwards is
+# "<local port> <host>:<port>".
+[ -f /etc/devops-labs/forwards ] || exit 0
+while read -r port target; do
+  [ -n "$port" ] || continue
+  nohup socat "TCP-LISTEN:${port},bind=127.0.0.1,fork,reuseaddr" "TCP:${target}" >/dev/null 2>&1 &
+done < /etc/devops-labs/forwards
+exit 0

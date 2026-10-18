@@ -1,0 +1,17 @@
+log:
+  level: info
+runner:
+  file: /data/.runner
+  capacity: 1
+  timeout: 30m
+  fetch_timeout: 5s
+  fetch_interval: 2s
+  envs:
+    TRIVY_CACHE_DIR: /opt/trivy-cache
+    TRIVY_SKIP_DB_UPDATE: "true"
+    TRIVY_SKIP_JAVA_DB_UPDATE: "true"
+    TRIVY_NO_PROGRESS: "true"
+host:
+  workdir_parent: /data/act
+cache:
+  enabled: false

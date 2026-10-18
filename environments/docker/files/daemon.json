@@ -1,0 +1,6 @@
+{
+  "registry-mirrors": ["http://mirror-docker:5000"],
+  "insecure-registries": ["registry:5000", "mirror-docker:5000"],
+  "log-driver": "json-file",
+  "log-opts": { "max-size": "10m" }
+}

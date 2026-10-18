@@ -1,0 +1,14 @@
+#!/bin/bash
+# Lab container entry point: runs start-up hooks, starts port forwarders and
+# marks the container ready. With --once it returns instead of waiting
+# (used when systemd is the init process).
+mkdir -p /run/devops-labs
+for hook in /etc/devops-labs/start.d/*.sh; do
+  [ -f "$hook" ] && bash "$hook"
+done
+/usr/local/sbin/lab-forwards
+touch /run/devops-labs/ready
+if [ "$1" = "--once" ]; then
+  exit 0
+fi
+exec sleep infinity

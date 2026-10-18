@@ -1,0 +1,4 @@
+
+# DevOps Labs prompt: user@host:path$ in green.
+PS1='\[\e[1;32m\]\u@\h:\w\$\[\e[0m\] '
+export EDITOR=nano

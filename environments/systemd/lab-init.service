@@ -1,0 +1,11 @@
+[Unit]
+Description=DevOps Labs start-up hooks
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lab-init --once
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
