@@ -1,0 +1,3 @@
+- An Application manifest has `apiVersion: argoproj.io/v1alpha1`, `kind: Application`, `spec.source`, `spec.destination` and `spec.syncPolicy`.
+- Automatic sync with prune and self heal: `syncPolicy: {automated: {prune: true, selfHeal: true}, syncOptions: [CreateNamespace=true]}`.
+- `kubectl -n argocd get applications` shows the sync and health status.

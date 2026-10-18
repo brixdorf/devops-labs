@@ -1,0 +1,4 @@
+- `rate()` turns an ever-growing counter into a per-second rate; `sum()` adds up all label combinations.
+- `status=~"5.."` matches every status that starts with 5.
+- `histogram_quantile()` estimates a percentile from histogram buckets, grouped `by (le)`.
+- The description field is in the panel editor's right-hand options, under the title.

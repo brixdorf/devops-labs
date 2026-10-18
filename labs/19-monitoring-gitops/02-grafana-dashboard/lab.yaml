@@ -1,0 +1,7 @@
+id: monitoring-grafana-dashboard
+title: Build a Grafana Dashboard for Rate, Errors and Latency
+topic: monitoring-gitops
+order: 2
+environment: base
+addons: [grafana]
+maxScore: 50

@@ -6,6 +6,8 @@ kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -n argocd --server-side --force-conflicts -f /opt/devops-labs/argocd/install.yaml >/dev/null
 kubectl -n argocd scale deployment argocd-dex-server argocd-notifications-controller --replicas=0
 kubectl -n argocd patch configmap argocd-cmd-params-cm --type merge -p '{"data":{"server.insecure":"true"}}'
+# Check Git every 20 seconds instead of every 3 minutes, so labs see changes quickly.
+kubectl -n argocd patch configmap argocd-cm --type merge -p '{"data":{"timeout.reconciliation":"20s"}}'
 # Password: argocd@123!
 kubectl -n argocd patch secret argocd-secret --type merge -p '{"stringData":{"admin.password":"$2a$10$aMdi48ywk3EYXSD7T2M.6efKhcpdy9FbbRls.rfgqsrhEvBcMdJ/K","admin.passwordMtime":"2026-01-01T00:00:00Z"}}'
 kubectl -n argocd delete secret argocd-initial-admin-secret --ignore-not-found
@@ -19,7 +21,8 @@ if [ -n "$GITEA_IP" ]; then
   kubectl -n kube-system create configmap coredns --from-file=NodeHosts=/tmp/nodehosts --dry-run=client -o yaml \
     | kubectl -n kube-system patch configmap coredns --type merge --patch-file /dev/stdin
 fi
-kubectl -n argocd rollout restart deployment argocd-server
+kubectl -n argocd rollout restart deployment/argocd-server deployment/argocd-repo-server
+kubectl -n argocd rollout restart statefulset/argocd-application-controller
 for target in deployment/argocd-server deployment/argocd-repo-server deployment/argocd-redis statefulset/argocd-application-controller; do
   kubectl -n argocd rollout status "$target" --timeout=600s
 done

@@ -1,0 +1,7 @@
+id: monitoring-prometheus-scrape
+title: Scrape Application Metrics with Prometheus
+topic: monitoring-gitops
+order: 1
+environment: base
+addons: [prometheus]
+maxScore: 50
