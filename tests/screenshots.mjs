@@ -16,6 +16,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.5 });
 const shot = async (name, opts = {}) => {
   await page.waitForTimeout(400);
+  await page.evaluate(() => document.querySelectorAll('.toast').forEach((t) => t.remove()));
   await page.screenshot({ path: path.join(out, name), ...opts });
   console.log(`wrote docs/images/${name}`);
 };
