@@ -1,0 +1,3 @@
+- `uses: actions/upload-artifact@v7` takes inputs under `with:`: `name:` and `path:`.
+- `python3 -m json.tool` or `jq` makes the artifacts list readable; look for `"id"`.
+- `unzip calculator.zip` extracts the file.

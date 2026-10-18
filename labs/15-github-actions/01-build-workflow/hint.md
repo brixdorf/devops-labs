@@ -1,0 +1,3 @@
+- A workflow file starts with `name:`, then `on: push`, then `jobs:`.
+- Each step is either `uses: some/action@version` or `run: a shell command`.
+- Give the steps a `name:` so they are easy to find in the run log.

@@ -1,0 +1,3 @@
+- Insert the new step between "Install dependencies" and "Build", with the same indentation.
+- When a step fails, the following steps of the job are skipped.
+- `git commit -am "message"` commits changes to files Git already knows.

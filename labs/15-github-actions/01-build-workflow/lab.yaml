@@ -1,0 +1,9 @@
+id: gha-build-workflow
+title: Build on Every Push
+topic: github-actions
+order: 1
+environment: base
+addons: [gitea]
+maxScore: 50
+timeouts:
+  check: 240
