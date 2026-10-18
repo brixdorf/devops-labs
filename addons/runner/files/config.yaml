@@ -2,7 +2,7 @@ log:
   level: info
 runner:
   file: /data/.runner
-  capacity: 1
+  capacity: 2
   timeout: 30m
   fetch_timeout: 5s
   fetch_interval: 2s

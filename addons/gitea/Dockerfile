@@ -7,12 +7,17 @@ ARG CHECKOUT_VERSION
 ARG UPLOAD_ARTIFACT_VERSION
 ARG DOWNLOAD_ARTIFACT_VERSION
 # Each action becomes a one-commit repository (Gitea refuses shallow pushes),
-# tagged with its exact version and its major version.
+# tagged with its exact version and its major version. Their own CI
+# workflows are removed so they do not occupy the lab runner. Gitea
+# implements the artifact protocol the v4+ artifact actions use, but the
+# actions refuse to run on any host other than github.com; the copies served
+# here skip that host check.
 RUN set -e; mkdir -p /opt/devops-labs/actions; cd /opt/devops-labs/actions; \
     for spec in "checkout ${CHECKOUT_VERSION}" "upload-artifact ${UPLOAD_ARTIFACT_VERSION}" "download-artifact ${DOWNLOAD_ARTIFACT_VERSION}"; do \
       set -- $spec; \
       git clone -q --depth 1 --branch "$2" "https://github.com/actions/$1.git" "$1"; \
-      rm -rf "$1/.git"; \
+      rm -rf "$1/.git" "$1/.github/workflows" "$1/.gitea"; \
+      find "$1/dist" -name '*.js' -exec sed -i 's/return !isGitHubHost \&\& !isGheHost \&\& !isLocalHost;/return false;/' {} +; \
       git -C "$1" init -q -b main; \
       git -C "$1" add -A; \
       git -C "$1" -c user.name=devops-labs -c user.email=devops-labs@localhost commit -q -m "actions/$1 $2"; \

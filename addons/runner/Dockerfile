@@ -12,6 +12,9 @@ ARG GITLEAKS_VERSION
 ARG BANDIT_VERSION
 ARG PIP_WHEELS
 COPY --from=act /usr/local/bin/act_runner /usr/local/bin/act_runner
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends python3-pip make \
+ && rm -rf /var/lib/apt/lists/*
 RUN set -e; cd /tmp; \
     case "$TARGETARCH" in arm64) NODE_ARCH=arm64; TRIVY_ARCH=ARM64; GL_ARCH=arm64 ;; *) NODE_ARCH=x64; TRIVY_ARCH=64bit; GL_ARCH=x64 ;; esac; \
     curl -fsSLO "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz"; \
@@ -31,7 +34,7 @@ RUN set -e; cd /tmp; \
     /opt/bandit/bin/pip install -q --no-cache-dir "bandit==${BANDIT_VERSION}"; \
     ln -s /opt/bandit/bin/bandit /usr/local/bin/bandit; \
     python3 -m venv /opt/wheel-tool; \
-    /opt/wheel-tool/bin/pip download -q --no-cache-dir -d /opt/wheels $PIP_WHEELS; \
+    for req in $PIP_WHEELS; do /opt/wheel-tool/bin/pip download -q --no-cache-dir -d /opt/wheels "$req"; done; \
     rm -rf /opt/wheel-tool; \
     trivy image --download-db-only --cache-dir /opt/trivy-cache --no-progress; \
     chmod -R a+rX /opt/trivy-cache
