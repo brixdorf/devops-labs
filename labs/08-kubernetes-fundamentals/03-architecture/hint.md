@@ -1,0 +1,4 @@
+- Only one component stores the cluster state, and only one is the front door that every other component talks to.
+- The scheduler decides where a pod should run; the kubelet makes it actually run on its node.
+- Controllers watch for differences between what you asked for and what exists, and act to close the gap.
+- `kubectl get nodes -o wide` shows the kubelet version and the container runtime. `kubectl config view --minify` shows the server URL.

@@ -1,0 +1,7 @@
+id: k8s-service-target-port
+title: Service Port and Target Port
+topic: kubernetes-services
+order: 3
+environment: kubernetes
+addons: []
+maxScore: 50

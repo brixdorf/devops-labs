@@ -1,0 +1,3 @@
+- `kubectl create deployment catalog --image=... --replicas=3` names the container after the image (`podinfo`).
+- `kubectl set image deployment/catalog podinfo=NEW_IMAGE` starts a rolling update.
+- `kubectl rollout status deployment/catalog` waits for it, `kubectl rollout history` lists revisions and `kubectl rollout undo` rolls back.

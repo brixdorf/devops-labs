@@ -1,0 +1,7 @@
+id: k8s-explore-cluster
+title: Explore a Kubernetes Cluster
+topic: kubernetes-fundamentals
+order: 1
+environment: kubernetes
+addons: []
+maxScore: 50

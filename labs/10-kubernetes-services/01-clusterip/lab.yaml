@@ -1,0 +1,7 @@
+id: k8s-clusterip-service
+title: ClusterIP Service and Endpoints
+topic: kubernetes-services
+order: 1
+environment: kubernetes
+addons: []
+maxScore: 50

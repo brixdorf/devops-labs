@@ -1,0 +1,3 @@
+- `kubectl create deployment shop-api --image=... --replicas=2`
+- `kubectl scale deployment shop-api --replicas=5`
+- `kubectl rollout status deployment/shop-api` waits until the new replica count is ready. When scaling down, wait until `kubectl get pods` shows only two Pods.

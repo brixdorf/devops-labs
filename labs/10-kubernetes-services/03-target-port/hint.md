@@ -1,0 +1,3 @@
+- `kubectl get deployment payments -o yaml` shows `ports:` with `name` and `containerPort`.
+- In a Service manifest, `targetPort` can be a number or the name of a container port.
+- `kubectl get endpointslices -l kubernetes.io/service-name=payments-svc` shows addresses and the resolved port.

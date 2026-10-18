@@ -1,0 +1,4 @@
+- A Pod manifest has `apiVersion: v1`, `kind: Pod`, `metadata` (name, labels) and `spec.containers`.
+- `kubectl get pod nginx-pod -o wide --show-labels` shows status, IP, node and labels in one line.
+- `kubectl port-forward pod/nginx-pod 8080:80` makes the Pod reachable at `localhost:8080` while it runs. Press Ctrl+C to stop it.
+- `kubectl logs nginx-pod > file` saves the logs.

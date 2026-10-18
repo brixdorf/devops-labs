@@ -1,0 +1,5 @@
+- `kubectl get nodes -o wide` shows the version and internal IP of each node.
+- `kubectl get namespaces` (short: `kubectl get ns`) lists namespaces.
+- `kubectl get pods -n kube-system` lists pods in one namespace. `--no-headers | wc -l` counts them.
+- `kubectl get storageclass` marks the default one with "(default)".
+- `kubectl cluster-info` prints the API server address.

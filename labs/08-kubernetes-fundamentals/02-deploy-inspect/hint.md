@@ -1,0 +1,4 @@
+- `kubectl create namespace demo`
+- `kubectl create deployment hello-web --image=... --replicas=2 --port=9898 -n demo`
+- `kubectl rollout status deployment/hello-web -n demo`
+- `kubectl get pods -n demo -o wide`, `kubectl describe deployment hello-web -n demo`, `kubectl logs deploy/hello-web -n demo`

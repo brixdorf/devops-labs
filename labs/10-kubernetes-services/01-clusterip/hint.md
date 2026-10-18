@@ -1,0 +1,3 @@
+- `kubectl create deployment backend --image=... --replicas=3` labels its Pods `app=backend`.
+- `kubectl expose deployment backend --name=backend-svc --port=80 --target-port=9898` creates a matching ClusterIP Service.
+- `kubectl get pods -l app=backend -o wide` shows the Pod IPs, which should be the endpoints.

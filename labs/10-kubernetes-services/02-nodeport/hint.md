@@ -1,0 +1,2 @@
+- `kubectl expose deployment storefront --type=NodePort --name=storefront-np --port=80` picks a random node port. To choose `30080`, write a manifest with `nodePort: 30080` under `ports`, or edit the Service afterwards.
+- `kubectl get nodes -o wide` shows the node's internal IP.
