@@ -81,8 +81,8 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const { topics } = await api('GET', '/api/topics');
   let labs = topics.flatMap((t) => t.labs);
-  if (args.labs.length) labs = labs.filter((l) => args.labs.includes(l.id));
-  if (args.topics.length) labs = labs.filter((l) => args.topics.includes(l.topic));
+  // --lab and --topic add to the selection; --env narrows it.
+  if (args.labs.length || args.topics.length) labs = labs.filter((l) => args.labs.includes(l.id) || args.topics.includes(l.topic));
   if (args.envs.length) labs = labs.filter((l) => args.envs.includes(l.environment));
   if (args.from) labs = labs.slice(Math.max(0, labs.findIndex((l) => l.id === args.from)));
   if (!labs.length) {
