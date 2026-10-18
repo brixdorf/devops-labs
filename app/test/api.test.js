@@ -238,3 +238,18 @@ async function waitUntil(fn, timeoutMs = 3000) {
   }
   throw new Error('condition not met');
 }
+
+describe('terminal WebSocket timing', () => {
+  it('applies a resize sent before the shell has started', async () => {
+    const ctx = await launched();
+    const server = http.createServer(ctx.app);
+    attachTerminalServer(server, ctx.manager);
+    await new Promise((r) => server.listen(0, r));
+    servers.push(server);
+    const ws = new WebSocket(`ws://127.0.0.1:${server.address().port}/api/terminal?session=${ctx.manager.view().id}&tab=1&cols=80&rows=24`);
+    await new Promise((r) => ws.on('open', r));
+    ws.send(JSON.stringify({ type: 'resize', cols: 132, rows: 40 }));
+    await waitUntil(() => ctx.engine.ttys.length === 1 && ctx.engine.ttys[0].resizes.some(([c, r]) => c === 132 && r === 40));
+    ws.close();
+  });
+});
