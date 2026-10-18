@@ -1,0 +1,3 @@
+- `kubectl autoscale deployment cpu-app --name=cpu-app-hpa --min=1 --max=4 --cpu-percent=50`
+- Resources go under the container: `resources: {requests: {cpu: 50m}, limits: {cpu: 200m}}`.
+- The HPA computes utilization as a percentage of the CPU **request**. Where do the CPU numbers themselves come from? Try `kubectl top pods`.

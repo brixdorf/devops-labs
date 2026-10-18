@@ -1,0 +1,3 @@
+- `kubectl expose deployment shop --name=shop-svc --port=80 -n web` creates a Service for a deployment.
+- `kubectl create ingress site-ingress -n web --class=traefik --rule='shop.devops.local/*=shop-svc:80' --rule='blog.devops.local/*=blog-svc:80'` creates the whole Ingress in one command.
+- Nginx answers "Welcome to nginx!", Apache answers "It works!".

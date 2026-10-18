@@ -1,0 +1,3 @@
+- `kubectl create secret generic db-credentials --from-literal=username=appuser --from-file=password=/home/user/secret/db-password.txt` reads the file as the value. Make sure the file has no trailing newline, or use `--from-literal=password="$(cat file)"`.
+- In the container: `env: - name: DB_PASSWORD valueFrom: secretKeyRef: {name: db-credentials, key: password}`.
+- A Secret volume: `volumes: - name: creds secret: {secretName: db-credentials}` plus a `volumeMounts` entry with `readOnly: true`.

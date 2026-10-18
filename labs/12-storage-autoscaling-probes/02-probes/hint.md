@@ -1,0 +1,4 @@
+- Probes go under the container: `readinessProbe: {httpGet: {path: /readyz, port: 9898}, periodSeconds: 3}`.
+- An exec probe looks like `livenessProbe: {exec: {command: ["cat", "/tmp/healthy"]}, periodSeconds: 5, failureThreshold: 2}`.
+- `kubectl get endpointslices -l kubernetes.io/service-name=probe-svc -o wide` shows which Pod IPs receive traffic.
+- `kubectl exec deploy/liveness-demo -- rm /tmp/healthy`

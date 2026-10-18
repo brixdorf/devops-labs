@@ -1,0 +1,3 @@
+- A PVC manifest has `kind: PersistentVolumeClaim` with `spec.accessModes`, `spec.storageClassName` and `spec.resources.requests.storage`.
+- In the Pod: `volumes: - name: data persistentVolumeClaim: {claimName: notes-pvc}` and `volumeMounts: - name: data mountPath: /data`.
+- `kubectl exec notes-writer -- sh -c 'echo "text" > /data/notes.txt'` writes the file.

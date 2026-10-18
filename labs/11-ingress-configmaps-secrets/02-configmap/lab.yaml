@@ -1,0 +1,7 @@
+id: k8s-configmap-env
+title: Configure an App with a ConfigMap
+topic: ingress-configmaps-secrets
+order: 2
+environment: kubernetes
+addons: []
+maxScore: 50
