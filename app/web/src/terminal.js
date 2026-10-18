@@ -98,6 +98,11 @@ class TerminalTab {
     const params = new URLSearchParams({ session: session.id, tab: String(this.id), cols: String(this.term.cols), rows: String(this.term.rows) });
     const ws = new WebSocket(`${proto}://${location.host}/api/terminal?${params}`);
     this.ws = ws;
+    // Resizes sent before the socket opened were dropped, so send the real size now.
+    ws.onopen = () => {
+      this.fitNow();
+      this.send({ type: 'resize', cols: this.term.cols, rows: this.term.rows });
+    };
     ws.onmessage = (event) => {
       let msg;
       try {

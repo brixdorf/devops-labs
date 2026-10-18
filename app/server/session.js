@@ -463,7 +463,7 @@ export class SessionManager extends EventEmitter {
     const { stream, resize } = await this.engine.execTty(session.containers.lab, {
       cmd: ['bash', '-l'],
       user: LAB_USER,
-      env: ['TERM=xterm-256color', 'HOME=/home/user', 'USER=user', 'LANG=C.UTF-8', `COLUMNS=${cols}`, `LINES=${rows}`],
+      env: ['TERM=xterm-256color', 'HOME=/home/user', 'USER=user', 'LANG=C.UTF-8'],
       workdir: '/home/user',
       cols,
       rows,
