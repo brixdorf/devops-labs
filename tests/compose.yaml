@@ -29,3 +29,8 @@ services:
   update:
     <<: *runner
     command: ["node", "tools/update-versions.mjs"]
+
+networks:
+  default:
+    labels:
+      org.devopslabs.project: devops-labs
