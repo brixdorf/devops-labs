@@ -1,0 +1,4 @@
+- Compose service keys: `build`, `image`, `ports`, `environment`, `depends_on`, `volumes`.
+- `docker compose up -d --build` builds and starts; `docker compose ps` shows the services.
+- `curl -s http://localhost:8083 >> visits.txt` appends a response.
+- `docker compose logs web` prints one service's logs; `docker compose down` stops and removes containers and the network but keeps named volumes.

@@ -1,0 +1,7 @@
+id: docker-named-volume
+title: Persist Database Data with a Named Volume
+topic: docker-networking-volumes
+order: 2
+environment: docker
+addons: []
+maxScore: 50

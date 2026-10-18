@@ -1,0 +1,4 @@
+- `docker volume create pgdata`
+- `-v pgdata:/var/lib/postgresql` mounts the named volume into the container.
+- `docker exec -it db psql -U postgres` opens an SQL prompt inside the container. Type `\q` to leave.
+- `docker rm -f db` stops and removes the container, but not the volume.

@@ -1,0 +1,3 @@
+- `docker network create NAME` creates a bridge network.
+- `docker run -d --name NAME --network NET IMAGE [COMMAND]` starts a container on that network.
+- `docker network inspect app-net` shows the subnet and every container's address. `docker inspect -f '{{json .NetworkSettings.Networks}}' api` works too.
