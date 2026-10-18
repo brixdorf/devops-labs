@@ -1,0 +1,3 @@
+- In a workflow, `${{ secrets.NAME }}` inserts a secret and `${{ github.sha }}` the commit ID.
+- `echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login registry:5000 -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin`
+- List the tags with `curl -s -u {{REGISTRY_USER}}:'{{REGISTRY_PASSWORD}}' http://registry:5000/v2/shop/web/tags/list`.

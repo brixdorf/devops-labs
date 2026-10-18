@@ -1,0 +1,4 @@
+- `needs: security` under the `build` job makes it wait for, and depend on, the `security` job.
+- Bandit's B602 finding means `shell=True` with a formatted string can run injected commands.
+- Gitleaks reports the rule and the line, for example an AWS access key in `config.py`.
+- Trivy lists each vulnerable package with the version that fixes it.

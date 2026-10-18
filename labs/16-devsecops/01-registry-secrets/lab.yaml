@@ -1,0 +1,9 @@
+id: devsecops-registry-secrets
+title: Push Images with Repository Secrets
+topic: devsecops
+order: 1
+environment: docker
+addons: [gitea, registry]
+maxScore: 50
+timeouts:
+  check: 300

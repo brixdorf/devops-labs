@@ -1,0 +1,10 @@
+id: devsecops-image-scan-gate
+title: Block Deployments with Image Scanning
+topic: devsecops
+order: 3
+environment: docker
+addons: [gitea, registry]
+maxScore: 50
+timeouts:
+  check: 300
+  solve: 900

@@ -1,0 +1,10 @@
+id: devsecops-security-scans
+title: Security Scans as a Required Gate
+topic: devsecops
+order: 2
+environment: docker
+addons: [gitea]
+maxScore: 50
+timeouts:
+  check: 300
+  solve: 900

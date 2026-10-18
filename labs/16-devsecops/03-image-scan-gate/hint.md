@@ -1,0 +1,3 @@
+- `needs: build-and-scan` makes `deploy` wait for the first job and skip when it fails.
+- Docker tagging: `docker tag SOURCE TARGET`, then `docker push TARGET`.
+- The Trivy report lists the vulnerable library and the version that fixes it.
