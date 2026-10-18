@@ -63,6 +63,10 @@ Your progress is saved in your browser. A lab stops by itself after 15 minutes w
 | --- | --- |
 | <img src="docs/images/screenshot-correct.png" alt="A Correct Answer verdict with every test case passed"> | <img src="docs/images/screenshot-wrong.png" alt="A Wrong Answer verdict listing the failed test cases and their reasons"> |
 
+**View Session Log** shows everything that happened in your terminal during the lab:
+
+<img src="docs/images/screenshot-session-log.png" alt="The session log window showing the recorded terminal session with its start time">
+
 ## <img src="docs/images/icons/square.svg" width="22" alt="Stop icon"> Stop
 
 Run this in the `devops-labs` folder. It also removes any running lab.
