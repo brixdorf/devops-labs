@@ -1,0 +1,3 @@
+- `docker run -d --name NAME -p HOST:CONTAINER IMAGE` starts a container in the background with a published port.
+- `docker ps` shows running containers and their ports.
+- `docker logs NAME` prints the container's output. Redirect it with `>` to save it to a file.

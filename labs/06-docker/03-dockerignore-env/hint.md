@@ -1,0 +1,3 @@
+- `.dockerignore` uses one pattern per line, for example `secrets.env`, `*.log` and `notes/`.
+- `ENV NAME=value` sets an environment variable for the build steps after it and for every container started from the image.
+- `docker run --rm IMAGE ls -la /app` shows what was copied into the image.

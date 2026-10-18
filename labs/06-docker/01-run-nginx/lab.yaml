@@ -1,0 +1,7 @@
+id: docker-run-nginx
+title: Run and Inspect an Nginx Container
+topic: docker
+order: 1
+environment: docker
+addons: []
+maxScore: 50

@@ -1,0 +1,7 @@
+id: docker-dockerfile-site
+title: Build an Image for a Web Page
+topic: docker
+order: 2
+environment: docker
+addons: []
+maxScore: 50

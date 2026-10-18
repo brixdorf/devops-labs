@@ -1,0 +1,7 @@
+id: docker-dockerignore-env
+title: Keep Secrets Out of the Image and Configure It with ENV
+topic: docker
+order: 3
+environment: docker
+addons: []
+maxScore: 50

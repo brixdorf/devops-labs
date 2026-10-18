@@ -1,0 +1,3 @@
+- Instructions are written one per line, for example `WORKDIR /srv/site`.
+- `COPY index.html .` copies into the working directory.
+- `docker build -t NAME:TAG DIR` builds and tags an image; `docker images` lists images.
