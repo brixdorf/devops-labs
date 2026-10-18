@@ -1,0 +1,7 @@
+id: git-merge-conflict
+title: Resolve a Merge Conflict
+topic: git
+order: 5
+environment: base
+addons: []
+maxScore: 50

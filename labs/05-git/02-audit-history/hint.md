@@ -1,0 +1,5 @@
+- `git log --oneline` prints one line per commit.
+- `git log -3` (or `-n 3`) limits the output to three commits.
+- `git log -1 --format=%an` prints only the author name of the latest commit.
+- `git log --grep=fix --grep=bug` matches commits whose message contains either word.
+- `git show` displays the latest commit with its diff.

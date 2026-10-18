@@ -1,0 +1,3 @@
+- `git merge feature/new-title` starts the merge and stops at the conflict.
+- In the file, the part between `<<<<<<< HEAD` and `=======` is your branch (main); the part between `=======` and `>>>>>>>` is the other branch.
+- After editing, `git add index.html` marks it as resolved, and `git commit` (with no message argument it opens an editor with a prepared message) creates the merge commit.

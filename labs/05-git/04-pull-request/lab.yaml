@@ -1,0 +1,7 @@
+id: git-pull-request
+title: Feature Branch and Pull Request
+topic: git
+order: 4
+environment: base
+addons: [gitea]
+maxScore: 50

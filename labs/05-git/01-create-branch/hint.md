@@ -1,0 +1,2 @@
+- `git branch` lists local branches and marks the current one with `*`.
+- `git branch <name>` creates a branch without switching to it. `git switch -c` and `git checkout -b` would switch.

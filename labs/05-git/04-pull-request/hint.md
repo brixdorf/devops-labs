@@ -1,0 +1,3 @@
+- `git switch -c feature/farewell` creates the branch and switches to it.
+- In Python, an f-string builds the text: `return f"Goodbye, {name}!"`.
+- `git push -u origin feature/farewell` pushes the branch. Gitea then shows a button to create a pull request, or use **New Pull Request** on the repository's Pull Requests tab.

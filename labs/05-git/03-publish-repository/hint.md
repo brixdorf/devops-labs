@@ -1,0 +1,4 @@
+- `git init -b main` creates a repository with a `main` branch.
+- `git config user.name "Your Name"` and `git config user.email you@example.com` set your identity.
+- Commit in steps: `git add todo.py && git commit -m "..."`, then the tests, then the README.
+- `git remote add origin URL` and `git push -u origin main` push and set the upstream branch.
