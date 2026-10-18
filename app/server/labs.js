@@ -106,9 +106,16 @@ export function readLabText(lab, name, vars = {}) {
   return text.replace(/\{\{\s*([A-Z_]+)\s*\}\}/g, (match, key) => (key in vars ? String(vars[key]) : match));
 }
 
-// Lists the files in a lab folder that are copied into the container for setup.
+// Lists the files in a lab folder that are copied into the container for
+// setup, plus the shared helpers from labs/_lib (as lib/).
 export function labSetupFiles(lab) {
   const files = [{ name: 'setup.sh', content: fs.readFileSync(path.join(lab.dir, 'setup.sh')), mode: 0o755 }];
+  const lib = path.join(path.dirname(path.dirname(lab.dir)), '_lib');
+  if (fs.existsSync(lib)) {
+    for (const name of fs.readdirSync(lib).filter((n) => /\.(sh|py)$/.test(n))) {
+      files.push({ name: `lib/${name}`, content: fs.readFileSync(path.join(lib, name)), mode: 0o755 });
+    }
+  }
   const assets = path.join(lab.dir, 'files');
   if (fs.existsSync(assets)) {
     const walk = (current, prefix) => {

@@ -402,10 +402,10 @@ export class SessionManager extends EventEmitter {
       const id = session.containers.lab;
       const dir = `/var/tmp/.lab-check-${randomHex(8)}`;
       await this.engine.exec(id, { cmd: ['install', '-d', '-m', '700', dir] });
-      const files = [
-        { name: 'check.py', content: fs.readFileSync(path.join(session.lab.dir, 'check.py')), mode: 0o600 },
-        { name: 'labcheck.py', content: fs.readFileSync(path.join(this.labLibDir, 'labcheck.py')), mode: 0o600 },
-      ];
+      const files = [{ name: 'check.py', content: fs.readFileSync(path.join(session.lab.dir, 'check.py')), mode: 0o600 }];
+      for (const name of fs.readdirSync(this.labLibDir).filter((n) => n.endsWith('.py'))) {
+        files.push({ name, content: fs.readFileSync(path.join(this.labLibDir, name)), mode: 0o600 });
+      }
       if (session.context) files.push({ name: 'context.json', content: session.context, mode: 0o600 });
       await this.engine.putFiles(id, dir, files);
       const result = await this.engine.exec(id, {
