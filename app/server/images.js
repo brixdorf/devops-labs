@@ -79,7 +79,10 @@ export function imageRecipes(versions) {
         TRIVY_VERSION: tools.trivy,
         GITLEAKS_VERSION: tools.gitleaks,
         BANDIT_VERSION: pip.bandit,
-        PIP_WHEELS: ['pytest', 'flask', 'pyyaml', 'prometheus-client'].map((name) => `${name}==${pip[name]}`).join(' '),
+        PIP_WHEELS: [
+          ...['pytest', 'flask', 'pyyaml', 'prometheus-client', 'django'].map((name) => `${name}==${pip[name]}`),
+          `django==${versions.lab_fixed.django_vulnerable}`,
+        ].join(' '),
       },
     },
     registry: {
@@ -201,6 +204,7 @@ export class ImageBuilder {
     const buildargs = { ...(recipe.args || {}), TARGETARCH: arch };
     if (recipe.parent) buildargs.PARENT_IMAGE = this.tagFor(recipe.parent);
     let steps = 0;
+    const recent = [];
     await this.engine.buildImage({
       contextDir: path.join(this.root, recipe.dir),
       tag,
@@ -211,8 +215,14 @@ export class ImageBuilder {
           steps += 1;
           onProgress(`${recipe.title}: ${line.replace(/^Step (\d+\/\d+) :/, 'step $1:').slice(0, 160)}`);
         }
+        recent.push(line);
+        if (recent.length > 12) recent.shift();
         this.log(`[build ${name}] ${line}`);
       },
+    }).catch((err) => {
+      // The engine reports the whole failing command; the last output lines say why.
+      const why = recent.filter((l) => !/^Step \d+\/\d+/.test(l)).slice(-4).join(' | ');
+      throw new Error(`Building the ${recipe.title} image failed${why ? `: ${why}` : ''}`.slice(0, 600));
     });
     // Upstream images we downloaded only to build from are untagged, so the
     // only images left behind are labelled ones owned by the project.
