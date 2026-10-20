@@ -19,6 +19,8 @@ export class FakeEngine {
     this.imageRuns = [];
     // Hook to customise image check results: (image, cmd) => result | undefined
     this.runHandler = null;
+    // Hook run during a build, before the image exists; it can throw to fail the build.
+    this.buildHandler = null;
     this.nextId = 1;
     // Hook to customise exec results: (containerName, cmd, opts) => result | undefined
     this.execHandler = null;
@@ -62,6 +64,7 @@ export class FakeEngine {
     this.builds.push(tag);
     this.buildOptions.push({ tag, ...options });
     onProgress?.('Step 1/1 : FROM scratch');
+    if (this.buildHandler) await this.buildHandler({ tag, onProgress, ...options });
     this.images.add(tag);
   }
 

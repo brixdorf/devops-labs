@@ -16,8 +16,28 @@ function isNotFound(err) {
 }
 
 export class DockerEngine {
+  // buildNetwork: the network RUN steps of builds use (default: Docker's
+  // default). Tests set an internal network to simulate a dropped connection.
   constructor(options = {}) {
     this.docker = new Docker(options.socketPath ? { socketPath: options.socketPath } : undefined);
+    this.buildNetwork = options.buildNetwork || null;
+  }
+
+  // Follows a JSON progress stream (pull or build) to its end. Docker reports
+  // most failures, such as a connection that drops halfway through a
+  // download, as an error event inside a stream that otherwise ends normally.
+  follow(stream, onEvent) {
+    return new Promise((resolve, reject) => {
+      let failure = null;
+      this.docker.modem.followProgress(
+        stream,
+        (err) => (err || failure ? reject(err || new Error(failure)) : resolve()),
+        (event) => {
+          if (event.error) failure = event.errorDetail?.message || event.error;
+          else onEvent(event);
+        },
+      );
+    });
   }
 
   async ping() {
@@ -54,14 +74,8 @@ export class DockerEngine {
 
   async pullImage(ref, onProgress = () => {}) {
     const stream = await this.docker.pull(ref);
-    await new Promise((resolve, reject) => {
-      this.docker.modem.followProgress(
-        stream,
-        (err) => (err ? reject(err) : resolve()),
-        (event) => {
-          if (event.status && !event.progressDetail?.current) onProgress(`${event.status}${event.id ? ` ${event.id}` : ''}`);
-        },
-      );
+    await this.follow(stream, (event) => {
+      if (event.status && !event.progressDetail?.current) onProgress(`${event.status}${event.id ? ` ${event.id}` : ''}`);
     });
   }
 
@@ -84,7 +98,9 @@ export class DockerEngine {
   }
 
   // Builds an image from a directory with the classic builder. Build steps
-  // are streamed to onProgress line by line.
+  // are streamed to onProgress line by line. When the build fails, the
+  // images of the steps it completed are removed: they carry no project
+  // label, so nothing else would ever remove them.
   async buildImage({ contextDir, tag, buildargs = {}, labels = {}, noCache = false, onProgress = () => {} }) {
     const pack = await packDirectory(contextDir);
     const stream = await this.docker.buildImage(pack, {
@@ -95,22 +111,42 @@ export class DockerEngine {
       rm: true,
       forcerm: true,
       version: '1',
+      ...(this.buildNetwork ? { networkmode: this.buildNetwork } : {}),
     });
-    await new Promise((resolve, reject) => {
-      let failure = null;
-      this.docker.modem.followProgress(
-        stream,
-        (err) => (err || failure ? reject(err || new Error(failure)) : resolve()),
-        (event) => {
-          if (event.error) failure = event.error;
-          if (event.stream) {
-            for (const line of event.stream.split('\n')) if (line.trim()) onProgress(line.trimEnd());
-          } else if (event.status && !event.progressDetail?.current) {
-            onProgress(`${event.status}${event.id ? ` ${event.id}` : ''}`);
+    // Step images this build created: not the FROM image, not cached steps.
+    const created = [];
+    let instruction = null;
+    let cached = false;
+    const track = (line) => {
+      const step = line.match(/^Step \d+\/\d+ : (\S+)/);
+      if (step) {
+        instruction = step[1].toUpperCase();
+        cached = false;
+      } else if (line === ' ---> Using cache') {
+        cached = true;
+      } else {
+        const id = line.match(/^ ---> ([0-9a-f]{12,64})$/)?.[1];
+        if (id && instruction !== 'FROM' && !cached) created.push(id);
+      }
+    };
+    try {
+      await this.follow(stream, (event) => {
+        if (event.stream) {
+          // Without the terminal colour codes Docker adds to failing steps.
+          for (const raw of event.stream.replace(/\u001b\[[0-9;]*m/g, '').split('\n')) {
+            const line = raw.trimEnd();
+            if (!line.trim()) continue;
+            track(line);
+            onProgress(line);
           }
-        },
-      );
-    });
+        } else if (event.status && !event.progressDetail?.current) {
+          onProgress(`${event.status}${event.id ? ` ${event.id}` : ''}`);
+        }
+      });
+    } catch (err) {
+      for (const id of created.reverse()) await this.docker.getImage(id).remove().catch(() => {});
+      throw err;
+    }
   }
 
   // Runs a shell command in a throwaway container of an image, without

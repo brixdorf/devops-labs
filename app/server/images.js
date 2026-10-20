@@ -143,6 +143,17 @@ function hashDir(hash, dir, prefix = '') {
   }
 }
 
+// Output of a download that failed because the internet connection dropped
+// or is too slow to work with (apt, curl, wget, git, Docker and Node.js).
+const NETWORK_FAILURE =
+  /Temporary failure resolving|Could not resolve|bad address|no such host|Name or service not known|Network is unreachable|Connection timed out|Connection reset|connection reset by peer|Connection refused|i\/o timeout|TLS handshake timeout|unexpected EOF|context deadline exceeded|dial tcp|Failed to connect|Unable to connect|Could not connect|curl: \((5|6|7|28|35|52|56)\)|EAI_AGAIN|ENOTFOUND|ECONNRESET|ETIMEDOUT|ENETUNREACH/i;
+
+export function isNetworkFailure(text) {
+  return NETWORK_FAILURE.test(text);
+}
+
+const OFFLINE_ADVICE = 'the internet connection seems to be down or too slow. Nothing was left half-built. Check your connection, then click Try Again.';
+
 export class ImageBuilder {
   // noCache: build every image from scratch once (fresh upstream images, no
   // build cache), even when it already exists. Used by the image test.
@@ -215,42 +226,26 @@ export class ImageBuilder {
     const recipe = this.recipes[name];
     const arch = await this.getArch();
     onProgress(`Preparing environment, first time only: building the ${recipe.title} image`);
+    // Upstream images downloaded only to build from are removed again,
+    // whether the build works or not, so the only images left behind are
+    // labelled ones owned by the project.
     const pulledByUs = [];
-    for (const ref of recipe.upstream || []) {
-      const present = await this.engine.imageExists(ref);
-      if (!present || this.noCache) {
-        onProgress(`Downloading ${ref}`);
-        await this.engine.pullImage(ref, () => {});
-        if (!present) pulledByUs.push(ref);
-      }
-    }
-    const buildargs = { ...(recipe.args || {}), TARGETARCH: arch };
-    if (recipe.parent) buildargs.PARENT_IMAGE = this.tagFor(recipe.parent);
-    let steps = 0;
-    const recent = [];
-    await this.engine.buildImage({
-      contextDir: path.join(this.root, recipe.dir),
-      tag,
-      buildargs,
-      labels: { [RECIPE_LABEL]: name },
-      noCache: this.noCache,
-      onProgress: (line) => {
-        if (/^Step \d+\/\d+/.test(line)) {
-          steps += 1;
-          onProgress(`${recipe.title}: ${line.replace(/^Step (\d+\/\d+) :/, 'step $1:').slice(0, 160)}`);
+    try {
+      for (const ref of recipe.upstream || []) {
+        const present = await this.engine.imageExists(ref);
+        if (!present || this.noCache) {
+          onProgress(`Downloading ${ref}`);
+          if (!present) pulledByUs.push(ref);
+          await this.engine.pullImage(ref, () => {}).catch((err) => {
+            if (isNetworkFailure(err.message)) throw new Error(`Could not download ${ref} for the ${recipe.title}: ${OFFLINE_ADVICE} (${err.message})`.slice(0, 600));
+            throw new Error(`Downloading ${ref} for the ${recipe.title} failed: ${err.message}`.slice(0, 600));
+          });
         }
-        recent.push(line);
-        if (recent.length > 12) recent.shift();
-        this.log(`[build ${name}] ${line}`);
-      },
-    }).catch((err) => {
-      // The engine reports the whole failing command; the last output lines say why.
-      const why = recent.filter((l) => !/^Step \d+\/\d+/.test(l)).slice(-4).join(' | ');
-      throw new Error(`Building the ${recipe.title} image failed${why ? `: ${why}` : ''}`.slice(0, 600));
-    });
-    // Upstream images we downloaded only to build from are untagged, so the
-    // only images left behind are labelled ones owned by the project.
-    for (const ref of pulledByUs) await this.engine.removeImage(ref).catch(() => {});
+      }
+      await this.buildFromRecipe(name, recipe, tag, arch, onProgress);
+    } finally {
+      for (const ref of pulledByUs) await this.engine.removeImage(ref).catch(() => {});
+    }
     onProgress(`Checking the ${recipe.title} image`);
     const check = await this.engine.runImage(tag, recipe.check);
     if (check.exitCode !== 0) {
@@ -262,6 +257,37 @@ export class ImageBuilder {
     await this.pruneOld(name, tag);
     onProgress(`Built the ${recipe.title} image`);
     return tag;
+  }
+
+  async buildFromRecipe(name, recipe, tag, arch, onProgress) {
+    const buildargs = { ...(recipe.args || {}), TARGETARCH: arch };
+    if (recipe.parent) buildargs.PARENT_IMAGE = this.tagFor(recipe.parent);
+    const recent = [];
+    await this.engine
+      .buildImage({
+        contextDir: path.join(this.root, recipe.dir),
+        tag,
+        buildargs,
+        labels: { [RECIPE_LABEL]: name },
+        noCache: this.noCache,
+        onProgress: (line) => {
+          if (/^Step \d+\/\d+/.test(line)) onProgress(`${recipe.title}: ${line.replace(/^Step (\d+\/\d+) :/, 'step $1:').slice(0, 160)}`);
+          recent.push(line);
+          if (recent.length > 12) recent.shift();
+          this.log(`[build ${name}] ${line}`);
+        },
+      })
+      .catch((err) => {
+        // The engine reports the whole failing command; the last output lines say why.
+        const output = recent.filter((l) => !/^Step \d+\/\d+/.test(l) && !/^ ---> /.test(l));
+        const offline = [...new Set(output.filter(isNetworkFailure).map((l) => l.trim()))];
+        if (offline.length || isNetworkFailure(err.message)) {
+          const why = (offline.length ? offline.slice(-2) : [err.message]).join(' | ');
+          throw new Error(`The ${recipe.title} image could not be built: ${OFFLINE_ADVICE} (${why})`.slice(0, 600));
+        }
+        const why = output.slice(-4).join(' | ');
+        throw new Error(`Building the ${recipe.title} image failed${why ? `: ${why}` : ''}`.slice(0, 600));
+      });
   }
 
   // Removes older builds of the same recipe.

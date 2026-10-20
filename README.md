@@ -141,6 +141,10 @@ If Kubernetes labs fail to start or are very slow, give Docker more memory.
 
 The first lab of each kind (Linux, Docker, Kubernetes, Terraform, Git server and so on) prepares its environment, which can take a few minutes and needs the internet. The app shows "Preparing environment, first time only". Later launches reuse it and take seconds.
 
+### The internet connection dropped while a lab was starting
+
+The app says the connection seems to be down or too slow. Nothing is left half-built, so there is nothing to clean up: once you are back online, click **Try Again**.
+
 ## More
 
 - [Adding a lab](docs/authoring-labs.md)

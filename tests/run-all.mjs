@@ -2,13 +2,14 @@
 //   1. rules check
 //   2. unit and API tests, lab folder checks and lab lint
 //   3. every environment and add-on image built from scratch, without cache
-//   4. browser end-to-end tests
-//   5. lab self-tests
-//   6. upgrade from v1.0.0 with git pull and docker compose up -d --build
-//   7. install, stop and uninstall test
+//   4. image builds that lose the internet connection, then get it back
+//   5. browser end-to-end tests
+//   6. lab self-tests
+//   7. upgrade from v1.0.0 with git pull and docker compose up -d --build
+//   8. install, stop and uninstall test
 //
 // Options: --skip <stage> (repeatable), --only <stage>, --with <stage>, --labs <selftest args>
-// Stages: rules, unit, images, e2e, selftest, upgrade, install, and versions
+// Stages: rules, unit, images, offline, e2e, selftest, upgrade, install, and versions
 // (only with --with or --only: fails when a pinned version is not the newest stable one)
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -96,6 +97,8 @@ stage('images', () => {
   if (!platformUp()) return false;
   return run('docker', ['compose', 'exec', '-T', 'app', 'node', 'server/build-images.js', '--no-cache'], { cwd: work });
 });
+
+stage('offline', () => run('node', [path.join(work, 'tests/offline.mjs'), work], { cwd: work }));
 
 stage('e2e', () => {
   if (!platformUp()) return false;
