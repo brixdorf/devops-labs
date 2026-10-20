@@ -1,5 +1,5 @@
 // Install, stop and uninstall test. Uses exactly the documented commands:
-//   docker compose up -d
+//   docker compose up -d          (as a fresh install, without the app image)
 //   docker compose down
 //   docker compose run --rm uninstall
 // It launches one lab from every environment in between, then checks that
@@ -52,7 +52,11 @@ function leftovers() {
     .split('\n')
     .filter((l) => l && !l.includes('devops-labs-tests'));
   const volumes = docker('volume', 'ls', '--filter', `label=${LABEL}`, '--format', '{{.Name}}').split('\n').filter(Boolean);
-  const networks = docker('network', 'ls', '--filter', `label=${LABEL}`, '--format', '{{.Name}}').split('\n').filter(Boolean);
+  // The test runner's own network stays while the runner uses it.
+  const runnerNetworks = docker('inspect', self, '--format', '{{range $name, $_ := .NetworkSettings.Networks}}{{$name}} {{end}}').split(' ');
+  const networks = docker('network', 'ls', '--filter', `label=${LABEL}`, '--format', '{{.Name}}')
+    .split('\n')
+    .filter((n) => n && !runnerNetworks.includes(n));
   const named = docker('ps', '-a', '--format', '{{.Names}}')
     .split('\n')
     .filter((n) => n.startsWith('devops-labs-') && !n.startsWith('devops-labs-tests'));
@@ -64,8 +68,16 @@ async function main() {
   spawnSync('docker', ['network', 'disconnect', 'devops-labs_default', self], { stdio: 'ignore' });
   sh('docker', ['compose', 'down']);
 
+  // A fresh install has no app image yet. Its first start must not try to
+  // pull the locally built image ("pull access denied").
   console.log('\n--- install and start ---');
-  sh('docker', ['compose', 'up', '-d']);
+  spawnSync('docker', ['image', 'rm', 'devops-labs-app:local'], { stdio: 'inherit' });
+  console.log('$ docker compose up -d');
+  const install = spawnSync('docker', ['compose', 'up', '-d'], { cwd: work, encoding: 'utf8' });
+  const installOutput = `${install.stdout}${install.stderr}`;
+  process.stdout.write(installOutput);
+  if (install.status !== 0) throw new Error(`docker compose up -d exited with ${install.status}`);
+  if (/pull access denied|devops-labs-app:local\s+Pulling/i.test(installOutput)) failures.push('docker compose up -d tried to pull the locally built app image');
   await waitForApp();
 
   const { data } = await api('GET', '/api/topics');

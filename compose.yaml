@@ -2,6 +2,8 @@ name: devops-labs
 
 x-app-image: &app-image
   image: devops-labs-app:local
+  # Built here, never downloaded: there is no such image on any registry.
+  pull_policy: never
   build:
     context: .
     labels:

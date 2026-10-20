@@ -55,10 +55,20 @@ async function uninstall() {
   for (const c of containers) await engine.removeContainer(c.Id);
   console.log(`Removed ${containers.length} containers`);
 
+  // Networks that this container or a running test runner still use are
+  // left out: they cannot be removed while in use.
   const selfNetworks = new Set(Object.keys(self?.NetworkSettings?.Networks || {}));
-  const networks = (await engine.listNetworks(project)).filter((n) => !selfNetworks.has(n.Name));
-  for (const n of networks) await engine.removeNetwork(n.Id);
-  console.log(`Removed ${networks.length} networks`);
+  const inUse = new Set(selfNetworks);
+  for (const c of await engine.listContainers({ ...project, [ROLE_LABEL]: 'test-runner' })) {
+    for (const name of Object.keys(c.NetworkSettings?.Networks || {})) inUse.add(name);
+  }
+  const networks = (await engine.listNetworks(project)).filter((n) => !inUse.has(n.Name));
+  let removedNetworks = 0;
+  for (const n of networks) {
+    const removed = await engine.removeNetwork(n.Id).catch((err) => console.log(`Could not remove the network ${n.Name}: ${err.message}`));
+    if (removed) removedNetworks += 1;
+  }
+  console.log(`Removed ${removedNetworks} networks`);
 
   const volumes = await engine.listVolumes(project);
   for (const v of volumes) await engine.removeVolume(v.Name);

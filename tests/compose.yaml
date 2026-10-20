@@ -5,6 +5,7 @@ name: devops-labs-tests
 
 x-runner: &runner
   image: devops-labs-tests:local
+  pull_policy: never
   build:
     context: ..
     dockerfile: tests/Dockerfile
