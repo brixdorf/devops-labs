@@ -4,4 +4,3 @@ topic: storage-autoscaling-probes
 order: 3
 environment: kubernetes
 addons: []
-maxScore: 50

@@ -4,4 +4,3 @@ topic: docker
 order: 2
 environment: docker
 addons: []
-maxScore: 50

@@ -10,7 +10,7 @@ Every lab is a folder under `labs/<NN-topic>/`. Folders are sorted by name, so p
 | `question.md` | The lab text in Markdown: title, scenario, numbered tasks with exact names and paths, notes, expected outcome. |
 | `hint.md` | Hint 1. A nudge, not the answer. |
 | `approach.md` | Solution Approach: the steps, without every command. |
-| `solution.md` | Complete Solution: the commands. Viewing it halves the lab's score. |
+| `solution.md` | Complete Solution: the commands. |
 | `setup.sh` | Runs as root inside the lab container before the student gets the terminal. Prepares the lab state. |
 | `check.py` | The checker. Runs as root at submit time only, then is removed. |
 | `solve.sh` | The automated solution. Runs as `user`, only during the self-test. |
@@ -26,7 +26,6 @@ topic: linux               # must match the topic folder's topic.yaml id
 order: 7                   # position in the topic
 environment: base          # base, systemd, docker, kubernetes or terraform
 addons: []                 # any of: gitea, registry, moto, prometheus, grafana, argocd
-maxScore: 50               # optional, defaults to 50
 timeouts:                  # optional, in seconds
   setup: 600
   check: 180

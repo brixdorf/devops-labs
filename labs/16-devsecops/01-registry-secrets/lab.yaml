@@ -4,6 +4,5 @@ topic: devsecops
 order: 1
 environment: docker
 addons: [gitea, registry]
-maxScore: 50
 timeouts:
   check: 300

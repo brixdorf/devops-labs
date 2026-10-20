@@ -4,4 +4,3 @@ topic: cloud-terraform
 order: 3
 environment: terraform
 addons: [moto]
-maxScore: 50

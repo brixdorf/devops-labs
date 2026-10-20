@@ -38,7 +38,6 @@ function labSummary(lab) {
     order: lab.order,
     environment: lab.environment,
     addons: lab.addons,
-    maxScore: lab.maxScore,
   };
 }
 

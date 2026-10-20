@@ -22,15 +22,18 @@ test('pick a lab, launch, work in the terminal, submit, review results, stop and
   await expect(page.locator('.lab-row').first()).toContainText('Basic Linux Commands');
   await page.getByTestId('rail-q1').click();
 
-  // Hints, and the score penalty for viewing the complete solution.
+  // No scores anywhere.
+  await expect(page.locator('.question-panel')).not.toContainText(/score/i);
+
+  // Hints, and the complete solution opens straight away without a penalty.
   await page.getByTestId('use-hint').click();
+  await expect(page.locator('.question-panel')).not.toContainText(/score|halve|penalty/i);
   await page.getByTestId('help-hint').locator('summary').click();
   await expect(page.getByTestId('help-hint')).toContainText('pwd');
   await page.getByTestId('help-solution').locator('summary').click();
-  await expect(page.getByRole('dialog')).toContainText('score will be halved');
-  await page.getByTestId('confirm-ok').click();
   await expect(page.getByTestId('help-solution')).toHaveAttribute('open', '');
-  await expect(page.locator('.penalty-note')).toContainText('score half');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByTestId('help-solution')).toContainText('answer.txt');
   await page.getByTestId('tab-question').click();
 
   // Launch.
@@ -48,11 +51,32 @@ test('pick a lab, launch, work in the terminal, submit, review results, stop and
 
   // A second terminal tab works independently.
   await page.getByRole('button', { name: 'New terminal' }).click();
-  await expect(page.getByRole('tab', { name: /Terminal 2/ })).toHaveAttribute('aria-selected', 'true');
+  const tab1 = page.getByRole('tab', { name: /Terminal 1/ });
+  const tab2 = page.getByRole('tab', { name: /Terminal 2/ });
+  await expect(tab2).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('.term-pane.active .xterm-rows')).toContainText('user@', { timeout: 30000 });
   await typeInTerminal(page, 'echo second-tab-$((6*7))');
   await expect(page.locator('.term-pane.active .xterm-rows')).toContainText('second-tab-42');
-  await page.getByRole('tab', { name: /Terminal 1/ }).click();
+
+  // Ctrl+Shift+PageUp and Ctrl+Shift+PageDown switch terminal tabs (the
+  // browser keeps Ctrl+Tab and Ctrl+PageUp/PageDown for its own tabs), and
+  // the keys go to the terminal that was switched to.
+  await expect(tab1).toHaveAttribute('title', /Ctrl\+Shift\+PageUp/);
+  await page.keyboard.press('Control+Shift+PageUp');
+  await expect(tab1).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.type('echo first-tab-$((2*3))', { delay: 5 });
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.term-pane.active .xterm-rows')).toContainText('first-tab-6');
+  await page.keyboard.press('Control+Shift+PageDown');
+  await expect(tab2).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.term-pane.active .xterm-rows')).not.toContainText('first-tab-6');
+  // It wraps around, and works while the focus is outside the terminal.
+  await page.locator('.panel-title').click();
+  await page.keyboard.press('Control+Shift+PageDown');
+  await expect(tab1).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('Control+Shift+PageUp');
+  await expect(tab2).toHaveAttribute('aria-selected', 'true');
+  await tab1.click();
 
   // Solve the lab by typing in the terminal.
   await typeInTerminal(page, 'echo $(pwd) >> /home/user/answer.txt && cd task_1 && echo cd >> /home/user/answer.txt');
@@ -64,7 +88,8 @@ test('pick a lab, launch, work in the terminal, submit, review results, stop and
   await expect(page.getByTestId('tests-body')).toContainText('Correct Answer');
   await expect(page.getByTestId('tests-body')).toContainText('6 checks, 6 passed');
   await expect(page.getByTestId('solved-badge')).toBeVisible();
-  await expect(page.getByTestId('your-score')).toHaveText('25');
+  await expect(page.getByTestId('tests-body')).not.toContainText(/score/i);
+  await expect(page.locator('.question-panel')).not.toContainText(/score/i);
   await expect(page.getByTestId('problems-solved')).toContainText('1 /');
   await expect(page.locator('[data-testid="rail-q1"] .rail-check')).toBeVisible();
 
@@ -86,6 +111,17 @@ test('pick a lab, launch, work in the terminal, submit, review results, stop and
   await rows.nth(0).click();
   await expect(page.getByTestId('tests-body')).toContainText('Correct Answer');
 
+  // Every submission opens the session log it was submitted from.
+  for (const i of [1, 0]) {
+    await rows.nth(i).getByRole('button', { name: 'View Session Log' }).click();
+    const rowLog = page.getByTestId('session-log');
+    await expect(rowLog).toContainText('Script started on');
+    await expect(rowLog).toContainText('Basic Linux Commands');
+    await expect(rowLog).toContainText('first-tab-6');
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+  }
+
   // Stop Lab.
   await page.getByTestId('stop-lab').click();
   await expect(page.getByTestId('launch-lab')).toBeVisible({ timeout: 60000 });
@@ -100,10 +136,11 @@ test('pick a lab, launch, work in the terminal, submit, review results, stop and
   await page.getByTestId('settings-button').click();
   await page.getByTestId('reset-progress').click();
   await expect(page.getByRole('dialog')).toContainText('in this browser only');
+  await expect(page.getByRole('dialog')).not.toContainText(/score/i);
   await page.getByTestId('confirm-ok').click();
   await expect(page.getByTestId('problems-solved')).toContainText('0 /');
   await page.getByTestId('tab-question').click();
-  await expect(page.getByTestId('your-score')).toHaveText('0');
+  await expect(page.getByTestId('solved-badge')).toHaveCount(0);
 });
 
 test('reset everything stops the lab and clears progress', async ({ page, request }) => {
@@ -116,6 +153,7 @@ test('reset everything stops the lab and clears progress', async ({ page, reques
   await expect(dialog).toContainText('Stop the running lab');
   await expect(dialog).toContainText('Clear the Kubernetes cluster state');
   await expect(dialog).toContainText('environment images are kept');
+  await expect(dialog).not.toContainText(/score/i);
   await expect(dialog).toContainText('Uninstalling and reinstalling');
   await page.getByTestId('confirm-ok').click();
   await expect(page.getByTestId('launch-lab')).toBeVisible({ timeout: 60000 });

@@ -4,4 +4,3 @@ topic: monitoring-gitops
 order: 2
 environment: base
 addons: [grafana]
-maxScore: 50

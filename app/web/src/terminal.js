@@ -33,6 +33,15 @@ export const TERMINAL_THEME = {
 
 export const TERMINAL_FONT = '"JetBrains Mono Variable", "JetBrains Mono", monospace';
 
+// Browsers keep Ctrl+Tab and Ctrl+PageUp/PageDown for their own tabs, so
+// terminal tabs switch with the same keys plus Shift.
+const SWITCH_KEYS = { PageUp: -1, PageDown: 1 };
+export const SWITCH_HINT = 'Ctrl+Shift+PageUp / Ctrl+Shift+PageDown switches terminals';
+
+function switchStep(e) {
+  return e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey ? SWITCH_KEYS[e.key] || 0 : 0;
+}
+
 export function createXterm(options = {}) {
   const term = new Terminal({
     fontFamily: TERMINAL_FONT,
@@ -72,6 +81,8 @@ class TerminalTab {
     // Ctrl+Shift+C / Ctrl+Shift+V always copy and paste. Plain Ctrl+C copies
     // when text is selected and otherwise interrupts the running command.
     this.term.attachCustomKeyEventHandler((e) => {
+      // Tab switching is handled by TerminalTabs once the event reaches the document.
+      if (switchStep(e)) return false;
       if (e.type !== 'keydown') return true;
       const key = e.key.toLowerCase();
       if ((e.ctrlKey || e.metaKey) && key === 'c' && (e.shiftKey || this.term.hasSelection())) {
@@ -163,6 +174,19 @@ export class TerminalTabs {
     this.nextId = 1;
     this.resizeObserver = new ResizeObserver(() => this.fitActive());
     this.resizeObserver.observe(container);
+    document.addEventListener('keydown', (e) => {
+      const step = switchStep(e);
+      if (!step || !this.tabs.length || document.querySelector('.modal-overlay')) return;
+      e.preventDefault();
+      this.selectNext(step);
+    });
+  }
+
+  // Selects the next (step 1) or previous (step -1) tab, wrapping around.
+  selectNext(step) {
+    const index = this.tabs.findIndex((t) => t.id === this.active);
+    const next = this.tabs[(index + step + this.tabs.length) % this.tabs.length];
+    if (next) this.select(next.id);
   }
 
   attach(session) {
@@ -211,9 +235,12 @@ export class TerminalTabs {
     this.active = id;
     for (const tab of this.tabs) tab.el.classList.toggle('active', tab.id === id);
     this.renderTabs();
+    // Focus at once so no key typed right after switching is lost.
+    const tab = this.tabs.find((t) => t.id === id);
+    tab?.term.focus();
     requestAnimationFrame(() => {
       this.fitActive();
-      this.tabs.find((t) => t.id === id)?.term.focus();
+      tab?.term.focus();
     });
   }
 
@@ -227,7 +254,7 @@ export class TerminalTabs {
       const selected = tab.id === this.active;
       const label = h(
         'button.term-tab',
-        { type: 'button', role: 'tab', 'aria-selected': String(selected), class: selected ? 'active' : '', onclick: () => this.select(tab.id) },
+        { type: 'button', role: 'tab', 'aria-selected': String(selected), class: selected ? 'active' : '', title: SWITCH_HINT, onclick: () => this.select(tab.id) },
         icon('terminal', { size: 14 }),
         `Terminal ${tab.id}`,
       );

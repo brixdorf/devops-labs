@@ -1,6 +1,8 @@
-// Progress, scores, submissions and session logs, kept in the browser's
-// local storage. Every access is wrapped so a blocked or full storage never
-// breaks the app.
+// Progress (solved status and submissions) and session logs, kept in the
+// browser's local storage. Every access is wrapped so a blocked or full
+// storage never breaks the app. The storage keys and format are the ones
+// v1.0.0 used, so progress survives an update; v1.0.0 also stored scores,
+// which are dropped when the progress is loaded.
 const KEY = 'devops-labs:progress:v1';
 const LOG_PREFIX = 'devops-labs:log:';
 const LOG_INDEX = 'devops-labs:logs:v1';
@@ -32,10 +34,24 @@ function safeRemove(key) {
   }
 }
 
+function emptyLab() {
+  return { solved: false, submissions: [] };
+}
+
+function cleanLab(saved) {
+  const submissions = Array.isArray(saved?.submissions) ? saved.submissions.filter((s) => s && typeof s === 'object') : [];
+  return {
+    solved: Boolean(saved?.solved),
+    submissions: submissions.map(({ points, penalty, ...entry }) => entry),
+  };
+}
+
 function load() {
   try {
     const data = JSON.parse(safeGet(KEY) || '{}');
-    return { labs: {}, prefs: {}, ...data };
+    const labs = {};
+    for (const [id, saved] of Object.entries(data?.labs || {})) labs[id] = cleanLab(saved);
+    return { labs, prefs: data?.prefs && typeof data.prefs === 'object' ? data.prefs : {} };
   } catch {
     return { labs: {}, prefs: {} };
   }
@@ -49,13 +65,13 @@ function save() {
 }
 
 function lab(id) {
-  if (!state.labs[id]) state.labs[id] = { solved: false, score: 0, solutionViewedAt: null, submissions: [] };
+  if (!state.labs[id]) state.labs[id] = emptyLab();
   return state.labs[id];
 }
 
 export const store = {
   labState(id) {
-    return state.labs[id] || { solved: false, score: 0, solutionViewedAt: null, submissions: [] };
+    return state.labs[id] || emptyLab();
   },
   pref(name, fallback = null) {
     return state.prefs?.[name] ?? fallback;
@@ -64,34 +80,21 @@ export const store = {
     state.prefs = { ...(state.prefs || {}), [name]: value };
     save();
   },
-  markSolutionViewed(id) {
-    const l = lab(id);
-    if (!l.solutionViewedAt) l.solutionViewedAt = Date.now();
-    save();
-  },
   // Records a submission and returns the stored entry.
   addSubmission(labInfo, submission) {
     const l = lab(labInfo.id);
     const correct = submission.verdict === 'correct';
-    const submittedAt = Date.parse(submission.submittedAt) || Date.now();
-    const penalty = Boolean(l.solutionViewedAt && l.solutionViewedAt <= submittedAt);
-    const points = correct ? (penalty ? Math.floor(labInfo.maxScore / 2) : labInfo.maxScore) : 0;
     const entry = {
-      no: l.submissions.length + 1,
+      no: (l.submissions.at(-1)?.no || 0) + 1,
       time: submission.submittedAt,
       status: correct ? 'correct' : 'wrong',
       runtimeMs: submission.runtimeMs,
-      points,
-      penalty,
       sessionId: submission.sessionId,
       result: { ...submission, log: undefined },
     };
     l.submissions.push(entry);
     if (l.submissions.length > 50) l.submissions.splice(0, l.submissions.length - 50);
-    if (correct) {
-      l.solved = true;
-      l.score = Math.max(l.score, points);
-    }
+    if (correct) l.solved = true;
     save();
     if (submission.log) this.saveLog(submission.log);
     return entry;
@@ -126,7 +129,7 @@ export const store = {
   solvedCount(labIds) {
     return labIds.filter((id) => state.labs[id]?.solved).length;
   },
-  // Clears solved status, scores, submissions and session logs.
+  // Clears solved status, submissions and session logs.
   resetProgress() {
     let index = [];
     try {

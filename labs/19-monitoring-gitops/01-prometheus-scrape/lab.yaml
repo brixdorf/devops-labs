@@ -4,4 +4,3 @@ topic: monitoring-gitops
 order: 1
 environment: base
 addons: [prometheus]
-maxScore: 50

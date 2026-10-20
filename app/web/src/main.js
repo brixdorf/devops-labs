@@ -321,7 +321,6 @@ function renderAllLabs() {
         h('span.lab-row-title', lab.title),
         h('span.chip', envLabel(lab.environment)),
         ls.solved ? h('span.badge.badge-success', icon('check', { size: 12 }), 'Solved') : h('span.badge', 'Not solved'),
-        h('span.lab-row-score', `${ls.score} / ${lab.maxScore}`),
       ),
     );
   });
@@ -341,8 +340,6 @@ function renderQuestion(lab, detail) {
     h('h1.panel-title', `Q${labNumber(lab)}. ${lab.title}`, ls.solved ? h('span.badge.badge-success', { 'data-testid': 'solved-badge' }, icon('check', { size: 12 }), 'Solved') : null),
     h(
       'div.question-meta',
-      h('span.score', 'Your Score: ', h('strong', { 'data-testid': 'your-score' }, String(ls.score))),
-      h('span.score', 'Max Score: ', h('strong', String(lab.maxScore))),
       h('span.chip', envLabel(lab.environment)),
       ...lab.addons.map((a) => h('span.chip.chip-soft', ADDON_LABELS[a] || a)),
     ),
@@ -379,15 +376,7 @@ function renderServiceLinks(lab) {
 }
 
 function renderHelp(lab, detail) {
-  const ls = store.labState(lab.id);
   const wrap = h('div.help');
-  wrap.append(
-    h(
-      'div.note',
-      icon('circle-alert', { size: 16 }),
-      h('span', `Viewing the Complete Solution halves this lab's score (from ${lab.maxScore} to ${Math.floor(lab.maxScore / 2)} for later correct submissions).`),
-    ),
-  );
   const item = (title, md, testid, extra = {}) =>
     h(
       'details.help-item',
@@ -395,25 +384,11 @@ function renderHelp(lab, detail) {
       h('summary', h('span', title), icon('chevron-down', { size: 16, className: 'chev' })),
       h('div.markdown', { html: renderMarkdown(md) }),
     );
-  wrap.append(item('Hint 1', detail.help.hint, 'help-hint'), item('Solution Approach', detail.help.approach, 'help-approach'));
-  const solution = item('Complete Solution', detail.help.solution, 'help-solution');
-  if (ls.solutionViewedAt) solution.append(h('div.penalty-note', 'You viewed this solution, so correct submissions now score half.'));
-  const summary = solution.querySelector('summary');
-  summary.addEventListener('click', async (e) => {
-    if (solution.open || store.labState(lab.id).solutionViewedAt) return;
-    e.preventDefault();
-    const ok = await confirmDialog({
-      title: 'View the complete solution?',
-      body: [`This lab's score will be halved: later correct submissions earn ${Math.floor(lab.maxScore / 2)} instead of ${lab.maxScore}.`, 'A score you already earned is kept.'],
-      confirm: 'View solution',
-    });
-    if (!ok) return;
-    store.markSolutionViewed(lab.id);
-    solution.open = true;
-    renderPanelKeepScroll();
-    els.panelBody.querySelector('[data-testid="help-solution"]')?.setAttribute('open', '');
-  });
-  wrap.append(solution);
+  wrap.append(
+    item('Hint 1', detail.help.hint, 'help-hint'),
+    item('Solution Approach', detail.help.approach, 'help-approach'),
+    item('Complete Solution', detail.help.solution, 'help-solution'),
+  );
   return wrap;
 }
 
@@ -434,12 +409,30 @@ function renderSubmissions(lab) {
       h('td', `${formatTime(s.time)}, ${formatDate(s.time)}`),
       h('td', h(`span.status.${s.status === 'correct' ? 'pass' : 'fail'}`, s.status === 'correct' ? 'Correct Answer' : 'Wrong Answer')),
       h('td', formatRuntime(s.runtimeMs)),
+      h(
+        'td.submission-log',
+        h(
+          'button.icon-button',
+          {
+            type: 'button',
+            title: 'View Session Log',
+            'aria-label': 'View Session Log',
+            onclick: (e) => {
+              e.stopPropagation();
+              openSessionLog(s.sessionId);
+            },
+            // Enter and Space press this button, not the row around it.
+            onkeydown: (e) => (e.key === 'Enter' || e.key === ' ') && e.stopPropagation(),
+          },
+          icon('scroll-text', { size: 16 }),
+        ),
+      ),
     ),
   );
   return h(
     'table.submissions',
     { 'data-testid': 'submissions-table' },
-    h('thead', h('tr', h('th', 'No.'), h('th', 'Time'), h('th', 'Status'), h('th', 'Runtime'))),
+    h('thead', h('tr', h('th', 'No.'), h('th', 'Time'), h('th', 'Status'), h('th', 'Runtime'), h('th', h('span.visually-hidden', 'Session log')))),
     h('tbody', rows),
   );
 }
@@ -589,7 +582,6 @@ function renderTests() {
     renderTimeline({
       startedAt: entry.time,
       result: entry.result,
-      points: entry.points,
       onViewLog: () => openSessionLog(entry.sessionId),
     }),
   );
@@ -700,7 +692,7 @@ async function confirmResetProgress() {
   const ok = await confirmDialog({
     title: 'Reset progress?',
     body: ['This clears, in this browser only:'],
-    items: ['Solved status of every lab', 'Scores', 'Submissions', 'Session logs'],
+    items: ['Solved status of every lab', 'Submissions', 'Session logs'],
     footnote: 'Nothing else changes: a running lab keeps running, and environments and add-on services are not touched.',
     confirm: 'Reset progress',
     danger: true,
@@ -722,7 +714,7 @@ async function confirmResetEverything() {
       'Remove every lab container, network and volume',
       'Clear add-on service data (Gitea, the container registry, Grafana, Prometheus, Argo CD and Moto)',
       'Clear the Kubernetes cluster state',
-      'Clear your progress in this browser: solved status, scores, submissions and session logs',
+      'Clear your progress in this browser: solved status, submissions and session logs',
     ],
     footnote:
       'The downloaded and built environment images are kept, so the next launch does not repeat the slow first-time setup. Uninstalling and reinstalling DevOps Labs (see the README) removes those too.',

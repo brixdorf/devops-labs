@@ -4,4 +4,3 @@ topic: cloud-terraform
 order: 1
 environment: terraform
 addons: []
-maxScore: 50

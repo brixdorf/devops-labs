@@ -4,7 +4,6 @@ topic: monitoring-gitops
 order: 3
 environment: kubernetes
 addons: [gitea, argocd]
-maxScore: 50
 timeouts:
   setup: 900
   check: 300

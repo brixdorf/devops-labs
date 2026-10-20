@@ -4,7 +4,6 @@ topic: networking
 order: 2
 environment: base
 addons: []
-maxScore: 50
 services:
   - name: svc-ok
     files: services

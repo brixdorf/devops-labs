@@ -42,7 +42,6 @@ describe('API', () => {
       order: 1,
       environment: 'base',
       addons: [],
-      maxScore: 50,
     });
   });
 
@@ -52,6 +51,7 @@ describe('API', () => {
     expect(res.body.question).toBe('Do the thing.');
     expect(res.body.help).toEqual({ hint: 'A hint.', approach: 'An approach.', solution: 'The solution.' });
     expect(res.body.dir).toBeUndefined();
+    expect(res.body.maxScore).toBeUndefined();
   });
 
   it('GET /api/labs/:id returns 404 for unknown labs', async () => {

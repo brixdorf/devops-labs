@@ -15,7 +15,7 @@ function step(state, title, detail, extra) {
 }
 
 // result: a submission (or null while evaluating). startedAt: Date or ISO string.
-export function renderTimeline({ startedAt, result, onViewLog, points }) {
+export function renderTimeline({ startedAt, result, onViewLog }) {
   const when = `${formatTime(startedAt)}, ${formatDate(startedAt)}`;
   const list = h('ol.timeline');
   list.append(step('done', 'Initiating Evaluation', when));
@@ -40,7 +40,6 @@ export function renderTimeline({ startedAt, result, onViewLog, points }) {
   });
   const correct = result.verdict === 'correct';
   const verdict = h(`span.verdict.${correct ? 'pass' : 'fail'}`, correct ? 'Correct Answer' : 'Wrong Answer');
-  const scoreNote = correct && points !== undefined ? h('div.tl-detail', `Score for this submission: ${points}`) : null;
-  list.append(step(correct ? 'pass' : 'fail', 'Final Verdict', verdict, scoreNote));
+  list.append(step(correct ? 'pass' : 'fail', 'Final Verdict', verdict));
   return list;
 }

@@ -30,7 +30,6 @@ export function validateLab(dir, meta, topic) {
     if (!ADDON_NAMES.includes(addon)) problems.push(`unknown add-on "${addon}"`);
   }
   if (meta.addons?.includes('argocd') && meta.environment !== 'kubernetes') problems.push('argocd needs the kubernetes environment');
-  if (meta.maxScore !== undefined && !(Number.isInteger(meta.maxScore) && meta.maxScore > 0)) problems.push('maxScore must be a positive integer');
   for (const svc of meta.services || []) {
     if (!svc.name || !/^[a-z0-9-]+$/.test(svc.name)) problems.push('each service needs a lowercase name');
     if (svc.files && !fs.existsSync(path.join(dir, svc.files))) problems.push(`service files folder ${svc.files} not found`);
@@ -87,7 +86,6 @@ export function loadCatalog(labsDir) {
         environment: meta.environment,
         addons: meta.addons || [],
         services: meta.services || [],
-        maxScore: meta.maxScore || 50,
         timeouts: { setup: 600, check: 180, solve: 900, ...(meta.timeouts || {}) },
         dir,
       };

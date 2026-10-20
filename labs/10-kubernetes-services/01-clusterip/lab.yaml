@@ -4,4 +4,3 @@ topic: kubernetes-services
 order: 1
 environment: kubernetes
 addons: []
-maxScore: 50

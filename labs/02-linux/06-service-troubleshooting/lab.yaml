@@ -4,4 +4,3 @@ topic: linux
 order: 6
 environment: systemd
 addons: []
-maxScore: 50

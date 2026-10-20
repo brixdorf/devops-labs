@@ -4,4 +4,3 @@ topic: ingress-configmaps-secrets
 order: 2
 environment: kubernetes
 addons: []
-maxScore: 50

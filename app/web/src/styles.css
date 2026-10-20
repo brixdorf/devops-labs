@@ -679,21 +679,6 @@ textarea {
   flex: 1;
 }
 
-.note {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 10px 12px;
-  margin-bottom: 14px;
-  border-radius: 8px;
-  background: var(--warning-soft);
-  color: #5b3b05;
-}
-
-.note .icon {
-  margin-top: 3px;
-}
-
 .help-item {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -727,12 +712,6 @@ textarea {
   padding: 4px 16px 12px;
 }
 
-.penalty-note {
-  padding: 8px 16px 12px;
-  color: var(--warning);
-  font-size: 13px;
-}
-
 .submissions {
   width: 100%;
   border-collapse: collapse;
@@ -756,6 +735,21 @@ textarea {
 
 .submissions tbody tr {
   cursor: pointer;
+}
+
+.submissions td.submission-log {
+  width: 1%;
+  padding: 4px 6px;
+  text-align: right;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .submissions tbody tr:hover,
@@ -806,13 +800,6 @@ textarea {
 .lab-row-title {
   flex: 1;
   font-weight: 550;
-}
-
-.lab-row-score {
-  width: 64px;
-  text-align: right;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
 }
 
 /* Lab column */

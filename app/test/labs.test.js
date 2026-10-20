@@ -10,7 +10,13 @@ describe('lab catalog', () => {
     expect(catalog.problems).toEqual([]);
     expect(catalog.topics.map((t) => t.id)).toEqual(['sample']);
     expect(catalog.topics[0].labs.map((l) => l.id)).toEqual(['first-lab', 'second-lab', 'docker-lab', 'gitea-lab']);
-    expect(catalog.labs.get('first-lab').maxScore).toBe(50);
+    expect(catalog.labs.get('first-lab')).not.toHaveProperty('maxScore');
+  });
+
+  it('still loads a lab.yaml written for v1.0.0 that sets maxScore', () => {
+    const catalog = loadCatalog(makeLabsDir([{ id: 'old-lab', title: 'Old Lab', maxScore: 50 }]));
+    expect(catalog.problems).toEqual([]);
+    expect(catalog.labs.get('old-lab')).not.toHaveProperty('maxScore');
   });
 
   it('reports missing files and bad metadata', () => {
@@ -53,6 +59,9 @@ describe('lab catalog', () => {
     const catalog = loadCatalog(path.join(repoRoot, 'labs'));
     expect(catalog.problems).toEqual([]);
     expect(catalog.labs.size).toBeGreaterThan(0);
+    for (const lab of catalog.labs.values()) {
+      expect(fs.readFileSync(path.join(lab.dir, 'lab.yaml'), 'utf8'), `${lab.id} lab.yaml`).not.toMatch(/maxScore/);
+    }
     for (const topic of catalog.topics) {
       const orders = topic.labs.map((l) => l.order);
       expect(new Set(orders).size, `${topic.id} has duplicate lab orders`).toBe(orders.length);

@@ -4,6 +4,5 @@ topic: github-actions
 order: 3
 environment: base
 addons: [gitea]
-maxScore: 50
 timeouts:
   check: 240
