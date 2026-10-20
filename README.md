@@ -51,9 +51,9 @@ Windows note: if Docker Desktop uses WSL and has too little memory, see [Low mem
 
 1. Choose a topic at the top and a lab (Q1, Q2, ...) on the left.
 2. Read the question, then click **Launch Lab**.
-3. Do the task in the terminal. Click **+** for a second terminal tab.
+3. Do the task in the terminal. Click **+** for a second terminal tab, and switch between tabs with **Ctrl+Shift+PageUp** and **Ctrl+Shift+PageDown**.
 4. Click **Run Task And Submit** to check your work. Fix what failed and submit again.
-5. Stuck? The **Help with Problem Solving** tab has a hint, an approach and the full solution (viewing the solution halves your score for that lab).
+5. Stuck? The **Help with Problem Solving** tab has a hint, an approach and the full solution.
 
 Your progress is saved in your browser. A lab stops by itself after 15 minutes without activity.
 
@@ -90,6 +90,8 @@ Start again later with `docker compose up -d`.
    ```
    docker compose up -d --build
    ```
+
+Your progress in the browser is kept. When an update changes a lab environment, the first launch of a lab of that kind prepares it again and takes a few minutes.
 
 ## <img src="docs/images/icons/trash.svg" width="22" alt="Uninstall icon"> Uninstall
 
