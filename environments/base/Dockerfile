@@ -6,7 +6,10 @@ ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8
 
 # Keep documentation so man pages work, then install the toolset. GNU
 # coreutils are used instead of the default Rust ones for familiar behaviour.
-RUN rm -f /etc/dpkg/dpkg.cfg.d/excludes \
+# Downloads are retried, and any failed step fails the build, so a broken
+# image is never kept.
+RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries \
+ && rm -f /etc/dpkg/dpkg.cfg.d/excludes \
  && if dpkg-divert --list /usr/bin/man | grep -q man; then rm -f /usr/bin/man && dpkg-divert --quiet --remove --rename /usr/bin/man; fi \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -16,7 +19,7 @@ RUN rm -f /etc/dpkg/dpkg.cfg.d/excludes \
  && apt-get install -y --no-install-recommends --allow-remove-essential coreutils-from-gnu coreutils-from-uutils- \
  && apt-get install -y --reinstall --no-install-recommends bash findutils gnu-coreutils grep gzip sed tar util-linux \
  && rm -rf /var/lib/apt/lists/* \
- && mandb -q || true
+ && { mandb -q || true; }
 
 # The lab user, with sudo behind the fixed practice password.
 RUN if id ubuntu >/dev/null 2>&1; then userdel -r ubuntu; fi \
@@ -35,7 +38,7 @@ RUN cd /opt/devops-labs/base \
  && cat /etc/devops-labs/bashrc-extra >> /root/.bashrc \
  && touch /home/user/.sudo_as_admin_successful /home/user/.hushlogin \
  && chown -R user:user /home/user \
- && chmod -x /etc/update-motd.d/* 2>/dev/null || true
+ && { chmod -x /etc/update-motd.d/* 2>/dev/null || true; }
 
 WORKDIR /home/user
 CMD ["/usr/local/sbin/lab-init"]

@@ -14,6 +14,11 @@ export class FakeEngine {
     this.files = new Map();
     this.execLog = [];
     this.builds = [];
+    this.buildOptions = [];
+    this.pulls = [];
+    this.imageRuns = [];
+    // Hook to customise image check results: (image, cmd) => result | undefined
+    this.runHandler = null;
     this.nextId = 1;
     // Hook to customise exec results: (containerName, cmd, opts) => result | undefined
     this.execHandler = null;
@@ -41,6 +46,7 @@ export class FakeEngine {
   }
 
   async pullImage(ref) {
+    this.pulls.push(ref);
     this.images.add(ref);
   }
 
@@ -52,10 +58,16 @@ export class FakeEngine {
     return [];
   }
 
-  async buildImage({ tag, onProgress }) {
+  async buildImage({ tag, onProgress, ...options }) {
     this.builds.push(tag);
+    this.buildOptions.push({ tag, ...options });
     onProgress?.('Step 1/1 : FROM scratch');
     this.images.add(tag);
+  }
+
+  async runImage(image, cmd) {
+    this.imageRuns.push({ image, cmd });
+    return { exitCode: 0, output: '', ...(this.runHandler?.(image, cmd) || {}) };
   }
 
   async createNetwork(name, labels = {}) {

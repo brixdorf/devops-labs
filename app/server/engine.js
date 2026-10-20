@@ -85,12 +85,13 @@ export class DockerEngine {
 
   // Builds an image from a directory with the classic builder. Build steps
   // are streamed to onProgress line by line.
-  async buildImage({ contextDir, tag, buildargs = {}, labels = {}, onProgress = () => {} }) {
+  async buildImage({ contextDir, tag, buildargs = {}, labels = {}, noCache = false, onProgress = () => {} }) {
     const pack = await packDirectory(contextDir);
     const stream = await this.docker.buildImage(pack, {
       t: tag,
       buildargs,
       labels: { [PROJECT_LABEL]: PROJECT_VALUE, ...labels },
+      nocache: noCache,
       rm: true,
       forcerm: true,
       version: '1',
@@ -110,6 +111,34 @@ export class DockerEngine {
         },
       );
     });
+  }
+
+  // Runs a shell command in a throwaway container of an image, without
+  // network access. Returns { exitCode, output }.
+  async runImage(image, cmd, { timeoutMs = 120000 } = {}) {
+    const container = await this.docker.createContainer({
+      Image: image,
+      Entrypoint: ['/bin/sh', '-c'],
+      Cmd: [cmd],
+      User: 'root',
+      NetworkDisabled: true,
+      Labels: { [PROJECT_LABEL]: PROJECT_VALUE },
+    });
+    try {
+      await container.start();
+      let timer;
+      const result = await Promise.race([
+        container.wait(),
+        new Promise((resolve) => {
+          timer = setTimeout(() => resolve(null), timeoutMs);
+        }),
+      ]);
+      clearTimeout(timer);
+      const output = demuxBuffer(await container.logs({ stdout: true, stderr: true, tail: 40 }));
+      return result ? { exitCode: result.StatusCode, output } : { exitCode: 124, output: `${output}\nThe check did not finish in time.` };
+    } finally {
+      await container.remove({ force: true }).catch(() => {});
+    }
   }
 
   // Networks

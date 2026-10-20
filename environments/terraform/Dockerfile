@@ -15,7 +15,7 @@ RUN cd /tmp \
  && unzip -q "terraform_${TERRAFORM_VERSION}_linux_${TARGETARCH}.zip" terraform \
  && install -m 0755 terraform /usr/local/bin/terraform \
  && rm -rf /tmp/* \
- && terraform -install-autocomplete 2>/dev/null; true
+ && { terraform -install-autocomplete 2>/dev/null || true; }
 COPY files/terraformrc /etc/terraformrc
 ENV TF_CLI_CONFIG_FILE=/etc/terraformrc
 RUN mkdir -p /tmp/warm /usr/share/terraform/providers \

@@ -1,6 +1,8 @@
 // Builds and caches the images that environments and add-on services use.
 // Every image is built locally from a folder in the repository, tagged with a
-// hash of its inputs, and labelled with the project label.
+// hash of its inputs, and labelled with the project label. After a build,
+// "check" runs in the new image; an image that fails it is removed, so a
+// broken image is never reused.
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -18,8 +20,14 @@ export function imageRecipes(versions) {
       title: 'base Linux environment',
       upstream: [`ubuntu:${img.ubuntu}`],
       args: { UBUNTU_IMAGE: `ubuntu:${img.ubuntu}` },
+      check: 'curl --version && python3 -c "import yaml" && git --version && jq --version && man -w ls && sudo --version && id user',
     },
-    systemd: { dir: 'environments/systemd', title: 'systemd environment', parent: 'base' },
+    systemd: {
+      dir: 'environments/systemd',
+      title: 'systemd environment',
+      parent: 'base',
+      check: 'test -x /sbin/init && systemctl --version && systemctl is-enabled lab-init.service && command -v cron',
+    },
     docker: {
       dir: 'environments/docker',
       title: 'Docker environment',
@@ -30,12 +38,14 @@ export function imageRecipes(versions) {
         COMPOSE_VERSION: tools.compose_plugin,
         BUILDX_VERSION: tools.buildx_plugin,
       },
+      check: 'dockerd --version && containerd --version && docker compose version && docker buildx version && id -nG user | grep -qw docker',
     },
     kubernetes: {
       dir: 'environments/kubernetes',
       title: 'Kubernetes tools',
       parent: 'base',
       args: { KUBECTL_VERSION: tools.kubectl, HELM_VERSION: tools.helm },
+      check: 'kubectl version --client && helm version',
     },
     k3s: {
       dir: 'environments/k3s',
@@ -43,6 +53,7 @@ export function imageRecipes(versions) {
       parent: 'base',
       upstream: [`rancher/k3s:${img.k3s}`],
       args: { K3S_IMAGE: `rancher/k3s:${img.k3s}`, ARGOCD_VERSION: tools.argocd, REDIS_IMAGE: `redis:${img.redis}` },
+      check: 'k3s --version && grep -q "argocd:" /opt/devops-labs/argocd/install.yaml && test -f /etc/rancher/k3s/registries.yaml',
     },
     terraform: {
       dir: 'environments/terraform',
@@ -55,8 +66,9 @@ export function imageRecipes(versions) {
         TF_RANDOM_VERSION: providers['hashicorp/random'],
         TF_NULL_VERSION: providers['hashicorp/null'],
       },
+      check: `terraform version && for p in aws local random null; do ls -d /usr/share/terraform/providers/registry.terraform.io/hashicorp/$p/*/linux_*; done`,
     },
-    sim: { dir: 'addons/sim', title: 'simulated services', parent: 'base' },
+    sim: { dir: 'addons/sim', title: 'simulated services', parent: 'base', check: 'dnsmasq --version && openssl version' },
     gitea: {
       dir: 'addons/gitea',
       title: 'Gitea',
@@ -67,6 +79,7 @@ export function imageRecipes(versions) {
         UPLOAD_ARTIFACT_VERSION: actions['actions/upload-artifact'],
         DOWNLOAD_ARTIFACT_VERSION: actions['actions/download-artifact'],
       },
+      check: 'gitea --version && for a in checkout upload-artifact download-artifact; do git -C /opt/devops-labs/actions/$a log --oneline -1; done',
     },
     runner: {
       dir: 'addons/runner',
@@ -84,30 +97,35 @@ export function imageRecipes(versions) {
           `django==${versions.lab_fixed.django_vulnerable}`,
         ].join(' '),
       },
+      check: 'act_runner --version && node --version && trivy --version && gitleaks version && bandit --version && ls /opt/wheels | grep -qi flask',
     },
     registry: {
       dir: 'addons/registry',
       title: 'container registry',
       upstream: [`registry:${img.registry}`],
       args: { REGISTRY_IMAGE: `registry:${img.registry}` },
+      check: 'registry --version && test -f /etc/distribution/mirror.yml',
     },
     moto: {
       dir: 'addons/moto',
       title: 'Moto server',
       upstream: [`motoserver/moto:${img.moto}`],
       args: { MOTO_IMAGE: `motoserver/moto:${img.moto}` },
+      check: 'python3 -c "import moto.server"',
     },
     prometheus: {
       dir: 'addons/prometheus',
       title: 'Prometheus',
       upstream: [`prom/prometheus:${img.prometheus}`],
       args: { PROMETHEUS_IMAGE: `prom/prometheus:${img.prometheus}` },
+      check: 'prometheus --version && promtool check config /etc/prometheus/prometheus.yml',
     },
     grafana: {
       dir: 'addons/grafana',
       title: 'Grafana',
       upstream: [`grafana/grafana:${img.grafana}`],
       args: { GRAFANA_IMAGE: `grafana/grafana:${img.grafana}` },
+      check: 'grafana --version && test -f /etc/grafana/provisioning/datasources/prometheus.yml',
     },
   };
 }
@@ -126,11 +144,15 @@ function hashDir(hash, dir, prefix = '') {
 }
 
 export class ImageBuilder {
-  constructor({ engine, root, versions, log = () => {} }) {
+  // noCache: build every image from scratch once (fresh upstream images, no
+  // build cache), even when it already exists. Used by the image test.
+  constructor({ engine, root, versions, log = () => {}, noCache = false }) {
     this.engine = engine;
     this.root = root;
     this.recipes = imageRecipes(versions);
     this.log = log;
+    this.noCache = noCache;
+    this.fresh = new Set();
     this.tags = new Map();
     this.pending = new Map();
     this.arch = null;
@@ -183,7 +205,7 @@ export class ImageBuilder {
       onProgress(`Waiting for the ${this.recipes[name].title} image to finish building`);
       return this.pending.get(name);
     }
-    if (await this.engine.imageExists(tag)) return tag;
+    if ((!this.noCache || this.fresh.has(name)) && (await this.engine.imageExists(tag))) return tag;
     const job = this.build(name, tag, onProgress).finally(() => this.pending.delete(name));
     this.pending.set(name, job);
     return job;
@@ -195,10 +217,11 @@ export class ImageBuilder {
     onProgress(`Preparing environment, first time only: building the ${recipe.title} image`);
     const pulledByUs = [];
     for (const ref of recipe.upstream || []) {
-      if (!(await this.engine.imageExists(ref))) {
+      const present = await this.engine.imageExists(ref);
+      if (!present || this.noCache) {
         onProgress(`Downloading ${ref}`);
         await this.engine.pullImage(ref, () => {});
-        pulledByUs.push(ref);
+        if (!present) pulledByUs.push(ref);
       }
     }
     const buildargs = { ...(recipe.args || {}), TARGETARCH: arch };
@@ -210,6 +233,7 @@ export class ImageBuilder {
       tag,
       buildargs,
       labels: { [RECIPE_LABEL]: name },
+      noCache: this.noCache,
       onProgress: (line) => {
         if (/^Step \d+\/\d+/.test(line)) {
           steps += 1;
@@ -227,6 +251,14 @@ export class ImageBuilder {
     // Upstream images we downloaded only to build from are untagged, so the
     // only images left behind are labelled ones owned by the project.
     for (const ref of pulledByUs) await this.engine.removeImage(ref).catch(() => {});
+    onProgress(`Checking the ${recipe.title} image`);
+    const check = await this.engine.runImage(tag, recipe.check);
+    if (check.exitCode !== 0) {
+      await this.engine.removeImage(tag, { force: true }).catch(() => {});
+      const why = check.output.split('\n').map((l) => l.trim()).filter(Boolean).slice(-4).join(' | ');
+      throw new Error(`The ${recipe.title} image is broken: its tool check failed${why ? `: ${why}` : ''}`.slice(0, 600));
+    }
+    this.fresh.add(name);
     await this.pruneOld(name, tag);
     onProgress(`Built the ${recipe.title} image`);
     return tag;
@@ -240,6 +272,14 @@ export class ImageBuilder {
       if (tags.includes(keepTag)) continue;
       await this.engine.removeImage(image.Id).catch(() => {});
     }
+  }
+
+  // Removes images built for other versions of the recipes, for example the
+  // ones an older release of DevOps Labs left behind. Children go first, as
+  // an image with dependent images cannot be removed.
+  async pruneStale() {
+    const names = Object.keys(this.recipes).sort((a, b) => this.chain(b).length - this.chain(a).length);
+    for (const name of names) await this.pruneOld(name, this.tagFor(name));
   }
 
   async status() {

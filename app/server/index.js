@@ -36,8 +36,13 @@ async function main() {
   server.listen(config.listenPort, () => {
     console.log(`DevOps Labs is running. Open http://localhost:${config.hostPorts.app}`);
   });
-  // The base environment is prepared in the background on first start.
-  images.ensure('base', (line) => console.log(line)).catch((err) => console.error(`Could not build the base environment: ${err.message}`));
+  // Images left by an older release are removed, then the base environment
+  // is prepared in the background on first start.
+  images
+    .pruneStale()
+    .catch(() => {})
+    .then(() => images.ensure('base', (line) => console.log(line)))
+    .catch((err) => console.error(`Could not build the base environment: ${err.message}`));
 }
 
 let shuttingDown = false;
