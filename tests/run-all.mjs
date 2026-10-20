@@ -1,12 +1,15 @@
 // Runs the whole test suite in order and prints a summary:
 //   1. rules check
 //   2. unit and API tests, lab folder checks and lab lint
-//   3. browser end-to-end tests
-//   4. lab self-tests
-//   5. install, stop and uninstall test
+//   3. every environment and add-on image built from scratch, without cache
+//   4. browser end-to-end tests
+//   5. lab self-tests
+//   6. upgrade from v1.0.0 with git pull and docker compose up -d --build
+//   7. install, stop and uninstall test
 //
-// Options: --skip <stage> (repeatable), --only <stage>, --labs <selftest args>
-// Stages: rules, unit, e2e, selftest, install
+// Options: --skip <stage> (repeatable), --only <stage>, --with <stage>, --labs <selftest args>
+// Stages: rules, unit, images, e2e, selftest, upgrade, install, and versions
+// (only with --with or --only: fails when a pinned version is not the newest stable one)
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -15,14 +18,17 @@ import path from 'node:path';
 const repo = process.env.DEVOPS_LABS_REPO || '/repo';
 const args = process.argv.slice(2);
 const skip = new Set();
+const extra = new Set();
+const OPT_IN = new Set(['versions']);
 let only = null;
 let labArgs = [];
 for (let i = 0; i < args.length; i += 1) {
   if (args[i] === '--skip') skip.add(args[++i]);
   else if (args[i] === '--only') only = args[++i];
+  else if (args[i] === '--with') extra.add(args[++i]);
   else if (args[i] === '--labs') labArgs = args.slice(i + 1);
 }
-const wanted = (stage) => (only ? only === stage : !skip.has(stage));
+const wanted = (stage) => (only ? only === stage : OPT_IN.has(stage) ? extra.has(stage) : !skip.has(stage));
 
 const results = [];
 function stage(name, fn) {
@@ -86,6 +92,11 @@ function platformUp() {
   return true;
 }
 
+stage('images', () => {
+  if (!platformUp()) return false;
+  return run('docker', ['compose', 'exec', '-T', 'app', 'node', 'server/build-images.js', '--no-cache'], { cwd: work });
+});
+
 stage('e2e', () => {
   if (!platformUp()) return false;
   return run('npx', ['playwright', 'test', '--config', path.join(work, 'tests/playwright.config.mjs')], {
@@ -99,7 +110,11 @@ stage('selftest', () => {
   return run('docker', ['compose', 'exec', '-T', 'app', 'node', 'server/selftest.js', ...labArgs], { cwd: work });
 });
 
+stage('upgrade', () => run('node', [path.join(work, 'tests/upgrade.mjs'), work], { cwd: work }));
+
 stage('install', () => run('node', [path.join(work, 'tests/install.mjs'), work], { cwd: work }));
+
+stage('versions', () => run('node', [path.join(work, 'tools/update-versions.mjs'), '--check'], { env: { ...process.env, DEVOPS_LABS_REPO: work } }));
 
 console.log('\n========== summary ==========');
 for (const r of results) console.log(`${r.status.padEnd(8)} ${r.name}${r.seconds !== undefined ? ` (${r.seconds}s)` : ''}`);

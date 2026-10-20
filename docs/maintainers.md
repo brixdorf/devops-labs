@@ -15,10 +15,12 @@ The suite runs these stages in order and prints a summary:
 | Stage | What it checks |
 | --- | --- |
 | `rules` | No long dashes, emojis or banned words in tracked files; commit messages follow `type: lowercase past-tense description`; author and committer are `brixdorf <itsromit@protonmail.com>`; the private brief was never committed; pinned versions in Dockerfiles and package files match `versions.json`. |
-| `unit` | Backend unit tests (session lifecycle, idle timeout, one lab at a time, checker parsing, cleanup), API tests for every endpoint and the terminal WebSocket, lab folder validation, and a lint of every lab script. |
-| `e2e` | Playwright browser tests of the full student flow: pick a topic and lab, launch, type in the terminal, use two terminal tabs, submit (Wrong Answer, then Correct Answer), session log, hints and the score penalty, submissions, Stop Lab, Reset progress and Reset everything. |
+| `unit` | Backend unit tests (session lifecycle, idle timeout, one lab at a time, checker parsing, cleanup, image builds and checks), API tests for every endpoint and the terminal WebSocket, browser progress (including progress saved by v1.0.0), lab folder validation, every Dockerfile failing the build when a command fails, and a lint of every lab script. |
+| `images` | Builds every environment and add-on image from scratch, with fresh upstream images and no build cache, and runs each image's tool check. |
+| `e2e` | Playwright browser tests of the full student flow: pick a topic and lab, launch, type in the terminal, use two terminal tabs and switch them with Ctrl+Shift+PageUp/PageDown, submit (Wrong Answer, then Correct Answer), session log from the test results and from every submission, hints and the solution, submissions, Stop Lab, Reset progress and Reset everything, and progress saved by v1.0.0. |
 | `selftest` | For every lab: launch, the checker must fail, run the automated solution, the checker must pass. |
-| `install` | Runs the documented commands: `docker compose up -d`, launches one lab of every environment, `docker compose down`, `docker compose run --rm uninstall`, then confirms that nothing with the project label remains. |
+| `upgrade` | Installs v1.0.0, solves a lab in the browser and leaves a Docker lab running, then updates with `docker compose up -d --build` and checks that the app starts cleanly, the browser progress is kept, old lab containers and images are gone, and labs launch. |
+| `install` | Runs the documented commands as a fresh install: `docker compose up -d` (without the app image, and without a "pull access denied" warning), launches one lab of every environment, `docker compose down`, `docker compose run --rm uninstall`, then confirms that nothing with the project label remains. |
 
 The `install` stage ends with an uninstall, so start the platform again afterwards with `docker compose up -d`.
 
@@ -27,6 +29,15 @@ Useful options (append after `tests`):
 ```
 docker compose -f tests/compose.yaml run --build --rm tests node tests/run-all.mjs --skip install
 docker compose -f tests/compose.yaml run --build --rm tests node tests/run-all.mjs --only selftest --labs --topic docker
+docker compose -f tests/compose.yaml run --build --rm tests node tests/run-all.mjs --only versions
+```
+
+The `versions` stage only runs when asked for (`--only versions` or `--with versions`). It fails when any entry in `versions.json` is not the newest stable release, which means it is time to run the update command below. It is left out of the default run so that a new upstream release does not fail the suite.
+
+To build one environment or add-on image from scratch and check it, against a running platform:
+
+```
+docker compose exec app node server/build-images.js --no-cache docker
 ```
 
 A single lab can also be self-tested against a running platform:
@@ -52,7 +63,7 @@ This command:
 
 Review the changes with `git diff`, then commit them. Set `GITHUB_TOKEN` in your shell before running it if you hit GitHub's rate limit for anonymous requests.
 
-To see what would change without writing anything:
+To see what would change without writing anything (`--check` does the same and exits with an error when anything is outdated):
 
 ```
 docker compose -f tests/compose.yaml run --build --rm update node tools/update-versions.mjs --dry-run

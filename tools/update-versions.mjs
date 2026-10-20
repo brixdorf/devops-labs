@@ -2,6 +2,7 @@
 // version, rebuilds everything and runs the full test suite.
 //
 //   docker compose -f tests/compose.yaml run --build --rm update [-- --dry-run] [-- --no-test]
+//   node tools/update-versions.mjs --check   (only report; fails when anything is outdated)
 //
 // Steps: look up the newest versions, update versions.json, sync the files
 // that copy versions from it, refresh lock files, rebuild the images, run
@@ -14,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 const root = process.env.DEVOPS_LABS_REPO || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dryRun = process.argv.includes('--dry-run');
 const noTest = process.argv.includes('--no-test');
+const checkOnly = process.argv.includes('--check');
 const versionsFile = path.join(root, 'versions.json');
 const versions = JSON.parse(fs.readFileSync(versionsFile, 'utf8'));
 const lookupErrors = [];
@@ -192,6 +194,11 @@ async function main() {
   if (!changes.length) console.log('Everything is already at the newest stable version.');
   for (const c of changes) console.log(`${`${c.section}.${c.key}`.padEnd(40)} ${c.from} -> ${c.to}`);
   for (const e of lookupErrors) console.log(`lookup failed: ${e}`);
+  if (checkOnly) {
+    const outdated = changes.length + lookupErrors.length;
+    console.log(outdated ? `\n${changes.length} pinned version(s) are not the newest stable release. Run the update command.` : '\nEvery pinned version is the newest stable release.');
+    process.exit(outdated ? 1 : 0);
+  }
   if (dryRun) {
     console.log('\nDry run: nothing was written.');
     return;
